@@ -173,14 +173,18 @@ routes.get('/resource', function(req, res) {
 routes.post('/resource', function(req, res) {
     var data = req.body;
     var trailId = req.body.trailId;
-    var order; //TODO: GET ORDER
+    var annotations = req.body.annotations;
+
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
         .then(function(resource){
             models.Trail.find(trailId).then(function(trail) {
-                trail.addResource(resource);
-                //TODO: Add order and annotations to step;
-                res.json(resource);
-            })
+                trail.getResources().then(function(resources) {
+                    resource[0].order = resources.length + 1;
+                    resource[0].annotations = annotations;
+                    trail.addResource(resource[0]);
+                    res.json(resource[0]);
+                })
+            });
         }
     );
 });
