@@ -43,7 +43,7 @@ routes.post('/trail', (req, res) => {
     var listOfTags = req.body.tags;
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
-        forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
+        forked_from: data.forked_from, num_views: 0}).then(function(result){
             req.user.addTrail(result);
             for(var tagName in listOfTags) {
                 models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
@@ -69,10 +69,26 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
 
 routes.post('/trail/:id([0-9]+)', function(req, res){
     var action = req.query.action;
-    if(action == 'like') {
-
-    } else if (action == 'fork') {
-
+    var trailId = req.params.id;
+    if (action == 'fork') {
+        if(!(req.user)){
+            res.status(401).send('Unauthorized');
+        }
+        models.Trail.find(trailId).then(function(trail) {
+            models.Trail.create({name: trail.name, 
+                description: trail.description, date_created: new Date(),
+                forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
+                    req.user.addTrail(result);
+                    trail.getResources().then(function(resources) {
+                        for (var resource in resources) {
+                            result.addResource(resource, {order: resource.order, annotations: resource.annotations});
+                        }
+                        res.json(result);
+                    });
+                });
+            });
+    } else {
+        res.status(400).send('Sorry, we cannot accept that action');
     }
 });
 
@@ -81,7 +97,7 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
     var data = req.body;
     var newListOfTags = req.body.newTags;
     var listOfDeletedTags = req.body.deletedTags;
-    models.Trail.find(trailId).then(function(trail) {
+    models.Trail.find(trailId).then(function(trail) {s
         if (trail) {
             trail.updateAttributes({
                 name: data.name, description: data.description, 
@@ -107,6 +123,7 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
 routes.delete('/trail/:id([0-9]+)', (req, res) => {
     var trailId = req.params.id;
     models.Trail.find(trailId).on('success', function(trail){
+        trail.removeResource();
         trail.destroy().on('success', function(a) {
             if (a && a.deletedAt){
                 res.send("SUCCESS!");
@@ -154,11 +171,18 @@ routes.put('/user/:id([0-9]+)', function(req, res) {
 
 routes.delete('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
+    res.send(userId);
     models.User.find(userId).then(function(user) {
-        //TODO: Delete all trails + steps + unlink resources?
-        user.destroy().then(function(action){
-            //TODO: DO SOMETHING
+        //TODO: Delete all trails + steps + unlink resources? {
+            var listOfTrails = trail.getTrail();
+            //var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+            for (let trail in listOfTrails) {
+                trail.removeResource();
+              }
         });
+
+        user.destroy().then(function(action){
+            res.send("Deleted!");
     });
 });
 
@@ -204,6 +228,9 @@ routes.put('/step/:trailId([0-9]+)', function(req, res) {
 });
 
 routes.delete('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+    models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
+        step.remove()
+    });
     //TODO: unlink with resource and trail, decrement/increment other steps in that trail, destroy
 });
 
@@ -258,8 +285,8 @@ passport.use(new LocalStrategy({
     });
 }));
 
-routes.get('/login', (req, res) => {
-    res.send("Login");
+routes.get('/isLoggedIn', (req, res) => {
+    res.json({isLoggedIn: req.user != null});
 });
 
 routes.post('/login', 
@@ -281,10 +308,6 @@ routes.get('/logout', (req, res) => {
     res.status(200).send("Success!");
 });
 
-routes.get('/signup', (req, res) => {
-    res.send("Sign up!");
-});
-
 routes.post('/signup', (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
@@ -297,6 +320,10 @@ routes.post('/signup', (req, res) => {
         })
     });
 });
+
+// **************************** Like *******************************
+
+
 
 //*********************** API END ***********************************************************************//
 
