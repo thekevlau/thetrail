@@ -43,8 +43,14 @@ routes.post('/trail', (req, res) => {
     //TODO: NEED TO SET USER
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
-        forked_from: data.forked_from, num_views: data.num_views}).then(function(trail){
-            res.send(trail.id);
+        forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
+            console.log("RESULT!@!@!@!@!@!@!@!")
+            console.log(result.dataValues);
+            console.log(result.dataValues.id);
+            console.log(req.user.id);
+            var trailId = result.dataValues.id;
+            models.Own.create({UserId: req.user.id, TrailId: trailId});
+            res.json(trailId);
         });
 });
 
@@ -64,7 +70,7 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
     if(action == 'like') {
 
     } else if (action == 'fork') {
-        
+
     }
 });
 
@@ -249,14 +255,14 @@ routes.get('/login', (req, res) => {
 routes.post('/login', 
     passport.authenticate('local'), //returns 401 if fails
     (req, res) => {
-        models.User.find(userId).success(function(user) {
+        models.User.find(req.user.id).then(function(user) {
             if (user) {
                 user.updateAttributes({
                     last_login: new Date()
                 })
             }
         });
-        res.redirect('/user/' + req.user.id);
+        res.redirect('/api/user/' + req.user.id);
     }
 );
 
@@ -276,7 +282,7 @@ routes.post('/signup', (req, res) => {
         var userId = result.dataValues.id;
         models.User.find(userId).then(function(user) {
             req.login(user, function() {
-                res.redirect('/user/' + user.id);
+                res.redirect('/api/user/' + user.id);
             })
         })
     });

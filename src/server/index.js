@@ -6,8 +6,7 @@ import models from "./models";
 
 const app = express();
 app.use(morgan(config.logging));
-
-app.use(routes);
+app.use('/api', routes);
 
 
 models.sequelize.sync().then(function () {
