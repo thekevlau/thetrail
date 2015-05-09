@@ -3,6 +3,7 @@ import React from 'react';
 
 import App from '../shared/App';
 import Flux from '../shared/Flux';
+import models from "../../models";
 
 const routes = express.Router();
         
@@ -12,6 +13,14 @@ routes.use(bodyParser.urlencoded({ extended: true }));
 
 routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
+});
+
+routes.get('/dbtest', (req, res) => {
+  models.User.findOrCreate({
+    where: {username: 'timtimpei'}
+  }).then(function(user) {
+    res.send(user);
+  });
 });
 
 //*********************** API CODE DO NOT TOUCH UNLESS YOU ARE JACK OR ALEX *****************************//

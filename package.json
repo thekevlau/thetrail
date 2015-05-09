@@ -30,6 +30,9 @@
     "node-jsx": "^0.13.3",
     "react": "^0.13.2",
     "react-async": "^2.1.0",
-    "react-router": "^0.13.3"
+    "react-router": "^0.13.3",
+    "sequelize": "^2.0.0-rc1",
+    "sequelize-cli": "^1.7.0",
+    "sqlite3": "^3.0.8"
   }
 }
