@@ -285,8 +285,8 @@ passport.use(new LocalStrategy({
     });
 }));
 
-routes.get('/login', (req, res) => {
-    res.send("Login");
+routes.get('/isLoggedIn', (req, res) => {
+    res.json({isLoggedIn: req.user != null});
 });
 
 routes.post('/login', 
@@ -306,10 +306,6 @@ routes.post('/login',
 routes.get('/logout', (req, res) => {
     req.logout();
     res.status(200).send("Success!");
-});
-
-routes.get('/signup', (req, res) => {
-    res.send("Sign up!");
 });
 
 routes.post('/signup', (req, res) => {
