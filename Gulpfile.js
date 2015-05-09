@@ -14,6 +14,18 @@ var handleWebpackErrors = function(errors){
     });
 };
 
+gulp.task('compile:shared', function(){
+    return gulp.src('./src/shared/**/*')
+        .pipe(insert.prepend('require(\'babel/polyfill\');\n'))
+        .pipe(insert.prepend('require(\'node-jsx\').install();\n'))
+        .pipe(babel({
+            optional: ['es7.asyncFunctions']
+        }))
+        .pipe(sourcemaps.init())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('./dist/shared/'));
+});
+
 gulp.task('compile:server', function(){
     return gulp.src('./src/server/**/*')
         .pipe(insert.prepend('require(\'babel/polyfill\');\n'))
@@ -35,7 +47,7 @@ gulp.task('restart:server', ['compile:server'], function(done){
     }
 });
 
-gulp.task('watch:server', ['compile:server'], function(){
+gulp.task('watch:server', ['compile:server', 'compile:shared'], function(){
     gulp.watch('./src/server/**/*.js', ['restart:server']);
 });
 
