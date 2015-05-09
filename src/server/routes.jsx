@@ -7,8 +7,15 @@ import RouteUtils from '../shared/utils/RouteUtils';
 import App from '../shared/App';
 import Flux from '../shared/Flux';
 import AppRoutes from '../shared/routes.js';
+import models from "./models";
 
 const routes = express.Router();
+
+var bodyParser = require('body-parser');
+var passport = require('passport')
+var LocalStrategy = require('passport-local').Strategy;
+routes.use(bodyParser.json()); 
+routes.use(bodyParser.urlencoded({ extended: true }));
 
 routes.use(express.static('static'));
 
@@ -21,23 +28,18 @@ routes.get('/monitor/ping', (req, res) => {
 // Put api code here:
 
 
-routes.post('/api/whatever', (args) => {
-    // Logic here.
-});
-
-
 
 //trail get
 routes.get('/trail/:id([0-9]+)', function(req, res){
     var trailId = req.params.id;
-    models.Trail.find({
-        where: {id: trailId}
-    }).then(function(trail) {
+    models.Trail.find(trailId).then(function(trail) {
         if (trail!=null) {
+
             res.json(trail);
 
         }
         else {
+            res.json(trail);
             res.status(404).send('Sorry, we cannot find that!');
         }
 
@@ -46,20 +48,59 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
 
 
 //trail post
-routes.put('/trail', (req, res) =>{  
+routes.post('/trail', (req, res) => {  
     //TODO: sql
-    var jsonvalue = req.body;
+    //res.json(req.body);
+    var js = req.body;
+    console.log(js);
 
-    models.Trail.upsert(req.body, [])
+    //res.send(js.name);
+    models.Trail.create({name: js.name, 
+        description: js.description, date_created: js.date_created,
+        forked_from: js.forked_from, num_views: js.num_views}).then(function(trail){
+            res.send(trail.id);
+        });
+
     //res.send(jsonvalue.ID);
     //todo  var trail = select from where id = 
-    res.json(jsonvalue);
+    //res.json(jsonvalue);
 
 });
 
+//trail put
+routes.put('/trail/:id([0-9]+)', (req, res) =>{  
+    var trailId = req.params.id;
+    //TODO: sql
+    //var js = json.parse(req.body);
+
+    res.send(js.name);
+    models.Trail.upsert({name: js.name, 
+        description: js.description, date_created: js.date_created,
+        forked_from: js.forked_from, num_views: num_views}).then(function(){
+
+        });
+
+    //res.send(jsonvalue.ID);
+    //todo  var trail = select from where id = 
+    //res.json(jsonvalue);
+
+});
+
+routes.delete('/trail/:id([0-9]+)', (req, res) => {
+    var trailId = req.params.id;
+    models.Trail.find(trailId).on('success', function(trail){
+        models.destroy().on('success', function(a) {
+            if (a && a.deletedAt){
+            }
+        });
+    });
+});
+
+
+
 //user get
 
-routes.get('user//:id([0-9]+)', function(req, res){
+routes.get('/user/:id([0-9]+)', function(req, res){
     var userId = req.params.id;
     models.User.find({
         where: {id: userId}
@@ -79,13 +120,13 @@ routes.get('user//:id([0-9]+)', function(req, res){
 
 //step get
 
-routes.get('/trail/:id([0-9]+)', function(req, res){
-    var trailId = req.params.id;
-    models.Trail.find({
-        where: {id: trailId}
-    }).then(function(trail) {
+routes.get('/step/:id([0-9]+)', function(req, res){
+    var stepId = req.params.id;
+    models.Step.find({
+        where: {id: stepId}
+    }).then(function(step) {
         if (trail!=null) {
-            res.json(trail);
+            res.json(step);
 
         }
         else {
@@ -159,7 +200,26 @@ routes.post('/signup', (req, res) => {
     });
 });
 
-routes.
+routes.get('/tag', (req, res) => {
+    var name = req.query.name;
+    var arrayOfTags = req.split('+');
+    var arrayOfTrails = [];
+    arrayOfTags.forEach(function(element, index, array) {
+        models.Tag.find({ where: { name: element }, include: [ Trail ], order: [ [ Trail, 'id' ] ] }).then(function(tag) {
+            var listOfTrails = tag.getTrails();
+            var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+            for (let trail in listOfTrails) {
+                if (arrayOfTrailIds.indexOf(trail.id) != -1) {
+                    arrayOfTrails.push(trail);
+                }
+            }
+        });
+    });
+    arrayOfTrails.sort(function(a, b) {
+        a.getLikes().length - b.getLikes().length;
+    });
+    return arrayOfTrails;
+});
 
 // *********************
 

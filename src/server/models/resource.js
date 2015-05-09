@@ -2,6 +2,7 @@ module.exports = function(sequelize, DataTypes) {
   var Resource = sequelize.define('Resource', {
 	id: {
 		type: DataTypes.UUID,
+    autoIncrement: true,
 		primaryKey: true
 	},
 	type: DataTypes.ENUM('link'),

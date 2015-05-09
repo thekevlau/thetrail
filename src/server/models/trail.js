@@ -2,6 +2,7 @@ module.exports = function(sequelize, DataTypes) {
   var Trail = sequelize.define('Trail', {
     id: {
       type: DataTypes.UUID,
+      autoIncrement: true,
       primaryKey: true
     },
     name: DataTypes.STRING,
