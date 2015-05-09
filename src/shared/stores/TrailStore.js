@@ -5,15 +5,15 @@ export default class TrailStore extends ApiDataStore {
 		super();
 
 		const TrailActionIds = flux.getActionIds('TrailActionIds');
-		this.registerAsyncAction(TrailActionIds.fetch);
+		this.registerAsyncAction(TrailActionIds.fetchTrailsForUser);
 
 	}
-	//get all the trail
+
 	getTrails(){
 		return this.getData();
 	}
-	//get all the trails that user id matches the name
-	getTrailsUsers(userId){
+
+	getTrailsForUser(userId){
 		return this.getData().values()
 			.filter(trail => trail.userId === userId)
 			.reduce((map, trail) => {
@@ -23,5 +23,4 @@ export default class TrailStore extends ApiDataStore {
 				return obj;
 			});
 	}
-
 }

@@ -185,12 +185,14 @@ routes.get('*', (req, res) => {
                 res.send(`
                     <html>
                         <head>
+                            <link rel="stylesheet" type="text/css" href="/css/reset.css" />
+                            <link rel="stylesheet" type="text/css" href="/css/main.css" />
                         </head>
                         <body>
                             <div id="app">
                                 ${rendered}
                             </div>
-                            <script type='text/javascript' src='/js/bundle.js'></script>
+                            <script type="text/javascript" src="/js/bundle.js"></script>
                         </body>
                     </html>
                 `);
