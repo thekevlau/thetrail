@@ -170,13 +170,16 @@ routes.post('/resource', function(req, res) {
     );
 });
 
-routes.put('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+routes.put('/step/:trailId([0-9]+)', function(req, res) {
     var trailId = req.params.trailId;
-    var order = req.params.order;
-    //TODO: Need to correctly get step based on trail Id
-    models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
-        step.updateAttributes({annotations: req.body.annotations}).then(function(step) {
-            //TODO: DO SOMETHING HERE
+    var resources = req.body.resources; // array of lists
+
+    for (var i = 0; i < resources.length; i++) {
+        resources[i].order = i;
+    }
+    models.Trail.find(trailId).then(function(trail) {
+        trail.setResources(resources, {order: 0, annotations: ''}).then(function(el) {
+            res.json(trail);
         });
     });
 });
