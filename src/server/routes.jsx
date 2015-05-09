@@ -40,17 +40,11 @@ routes.get('/trail', (req, res) => {
 
 routes.post('/trail', (req, res) => {  
     var data = req.body;
-    //TODO: NEED TO SET USER
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
         forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
-            console.log("RESULT!@!@!@!@!@!@!@!")
-            console.log(result.dataValues);
-            console.log(result.dataValues.id);
-            console.log(req.user.id);
-            var trailId = result.dataValues.id;
-            models.Own.create({UserId: req.user.id, TrailId: trailId});
-            res.json(trailId);
+            req.user.addTrail(result);
+            res.json(result);
         });
 });
 
@@ -230,8 +224,8 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  models.User.find(id).then(function (err, user) {
-    done(err, user);
+  models.User.find(id).then(function (user) {
+    done(null, user);
   });
 });
 
@@ -262,16 +256,16 @@ routes.post('/login',
             if (user) {
                 user.updateAttributes({
                     last_login: new Date()
-                })
+                });
+                res.json(req.user);
             }
         });
-        res.redirect('/api/user/' + req.user.id);
     }
 );
 
 routes.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.status(200).send("Success!");
 });
 
 routes.get('/signup', (req, res) => {
@@ -285,7 +279,7 @@ routes.post('/signup', (req, res) => {
         var userId = result.dataValues.id;
         models.User.find(userId).then(function(user) {
             req.login(user, function() {
-                res.redirect('/api/user/' + user.id);
+                res.json(req.user);
             })
         })
     });
