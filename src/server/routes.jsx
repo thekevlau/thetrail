@@ -44,6 +44,9 @@ routes.post('/trail', (req, res) => {
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
         forked_from: data.forked_from, num_views: 0}).then(function(result){
+            if(!(req.user)){
+                res.status(401).send('Unauthorized');
+            }
             req.user.addTrail(result);
             for(var tagName in listOfTags) {
                 models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
@@ -77,16 +80,17 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
         models.Trail.find(trailId).then(function(trail) {
             models.Trail.create({name: trail.name, 
                 description: trail.description, date_created: new Date(),
-                forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
-                    req.user.addTrail(result);
-                    trail.getResources().then(function(resources) {
-                        for (var resource in resources) {
-                            result.addResource(resource, {order: resource.order, annotations: resource.annotations});
-                        }
-                        res.json(result);
-                    });
+                forked_from: trail.getUsers()[0], num_views: 0
+            }).then(function(result) {
+                req.user.addTrail(result);
+                trail.getResources().then(function(resources) {
+                    resources.forEach(element => {
+                        result.addResource(element);
+                    }); 
+                    res.json(result);
                 });
             });
+        });
     } else {
         res.status(400).send('Sorry, we cannot accept that action');
     }
@@ -173,16 +177,16 @@ routes.delete('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
     res.send(userId);
     models.User.find(userId).then(function(user) {
-        //TODO: Delete all trails + steps + unlink resources? {
-            var listOfTrails = trail.getTrail();
-            //var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+        user.getTrails().then(function(listOfTrails) {
             for (let trail in listOfTrails) {
-                trail.removeResource();
-              }
+                trail.removeResources(); //remove all Resources - check API 
+                trail.destroy();
+            }  
+            user.destroy().then(function(action){
+                res.send("Deleted!");
+            }); 
         });
 
-        user.destroy().then(function(action){
-            res.send("Deleted!");
     });
 });
 
