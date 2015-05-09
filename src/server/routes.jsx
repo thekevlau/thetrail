@@ -100,26 +100,6 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
     }
 });
 
-    var name = req.query.name;
-    var arrayOfTags = req.split('+');
-    var arrayOfTrails = [];
-    arrayOfTags.forEach(function(element, index, array) {
-        models.Tag.find({ where: { name: element }, include: [ Trail ], order: [ [ Trail, 'id' ] ] }).then(function(tag) {
-            var listOfTrails = tag.getTrails();
-            var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
-            for (let trail in listOfTrails) {
-                if (arrayOfTrailIds.indexOf(trail.id) != -1) {
-                    arrayOfTrails.push(trail);
-                }
-            }
-        });
-    });
-    arrayOfTrails.sort(function(a, b) {
-        a.getLikes().length - b.getLikes().length;
-    });
-    return arrayOfTrails;
-
-
 routes.put('/trail/:id([0-9]+)', (req, res) =>{  
     var trailId = req.params.id;
     var data = req.body;
@@ -151,6 +131,7 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
 routes.delete('/trail/:id([0-9]+)', (req, res) => {
     var trailId = req.params.id;
     models.Trail.find(trailId).on('success', function(trail){
+        trail.removeResource();
         trail.destroy().on('success', function(a) {
             if (a && a.deletedAt){
                 res.send("SUCCESS!");
@@ -198,11 +179,18 @@ routes.put('/user/:id([0-9]+)', function(req, res) {
 
 routes.delete('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
+    res.send(userId);
     models.User.find(userId).then(function(user) {
-        //TODO: Delete all trails + steps + unlink resources?
-        user.destroy().then(function(action){
-            //TODO: DO SOMETHING
+        //TODO: Delete all trails + steps + unlink resources? {
+            var listOfTrails = trail.getTrail();
+            //var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+            for (let trail in listOfTrails) {
+                trail.removeResource();
+              }
         });
+
+        user.destroy().then(function(action){
+            res.send("Deleted!");
     });
 });
 
@@ -241,6 +229,9 @@ routes.put('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
 });
 
 routes.delete('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+    models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
+        step.remove()
+    });
     //TODO: unlink with resource and trail, decrement/increment other steps in that trail, destroy
 });
 
