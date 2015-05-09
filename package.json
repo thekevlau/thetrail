@@ -1,0 +1,35 @@
+{
+  "name": "trail",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shahmeer Navid <shahmeernavid@gmail.com> (http://shahmeer.co/)",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^5.2.17",
+    "babel-loader": "^5.0.0",
+    "gulp": "^3.8.11",
+    "gulp-babel": "^5.1.0",
+    "gulp-develop-server": "^0.4.2",
+    "gulp-insert": "^0.4.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-util": "^3.0.4",
+    "jsx-loader": "^0.13.2",
+    "webpack": "^1.8.11"
+  },
+  "dependencies": {
+    "babel": "^5.2.17",
+    "babel-runtime": "^5.2.17",
+    "express": "^4.12.3",
+    "flummox": "^4.0.0-alpha2",
+    "gulp-nodemon": "^2.0.3",
+    "morgan": "^1.5.2",
+    "node-jsx": "^0.13.3",
+    "react": "^0.13.2",
+    "react-async": "^2.1.0",
+    "react-router": "^0.13.3"
+  }
+}
