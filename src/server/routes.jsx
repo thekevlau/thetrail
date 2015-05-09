@@ -79,7 +79,10 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
                 description: trail.description, date_created: new Date(),
                 forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
                     req.user.addTrail(result);
-                    
+                    for (var resource in trail.getResources()) {
+                        result.addResource(resource, {order: resource.order, annotations: resource.annotations});
+                    }
+                    res.json(result);
                 });
             });
     } else {
