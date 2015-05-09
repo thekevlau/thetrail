@@ -1,0 +1,26 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'run', 'server' ]
+2 info using npm@1.4.23
+3 info using node@v0.10.31
+4 verbose run-script [ 'preserver', 'server', 'postserver' ]
+5 info preserver trail@1.0.0
+6 info server trail@1.0.0
+7 verbose unsafe-perm in lifecycle true
+8 info trail@1.0.0 Failed to exec server script
+9 error trail@1.0.0 server: `./node_modules/gulp/bin/gulp.js run`
+9 error Exit status 8
+10 error Failed at the trail@1.0.0 server script.
+10 error This is most likely a problem with the trail package,
+10 error not with npm itself.
+10 error Tell the author that this fails on your system:
+10 error     ./node_modules/gulp/bin/gulp.js run
+10 error You can get their info via:
+10 error     npm owner ls trail
+10 error There is likely additional logging output above.
+11 error System Darwin 14.3.0
+12 error command "node" "/usr/local/bin/npm" "run" "server"
+13 error cwd /Users/AlexanderFung/Sites/trail
+14 error node -v v0.10.31
+15 error npm -v 1.4.23
+16 error code ELIFECYCLE
+17 verbose exit [ 1, true ]
