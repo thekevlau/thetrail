@@ -43,7 +43,7 @@ routes.post('/trail', (req, res) => {
     var listOfTags = req.body.tags;
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
-        forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
+        forked_from: data.forked_from, num_views: 0}).then(function(result){
             req.user.addTrail(result);
             for(var tagName in listOfTags) {
                 models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
@@ -70,6 +70,7 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
 routes.post('/trail/:id([0-9]+)', function(req, res){
     var action = req.query.action;
     var trailId = req.params.id;
+<<<<<<< HEAD
     var userId = req.query.userId;
 
     /*if(action == 'like') {
@@ -97,6 +98,25 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
             }
         })
         
+=======
+    if (action == 'fork') {
+        if(!(req.user)){
+            res.status(401).send('Unauthorized');
+        }
+        models.Trail.find(trailId).then(function(trail) {
+            models.Trail.create({name: trail.name, 
+                description: trail.description, date_created: new Date(),
+                forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
+                    req.user.addTrail(result);
+                    for (var resource in trail.getResources()) {
+                        result.addResource(resource, {order: resource.order, annotations: resource.annotations});
+                    }
+                    res.json(result);
+                });
+            });
+    } else {
+        res.status(400).send('Sorry, we cannot accept that action');
+>>>>>>> a934da2db9b1de1c6f1c5265f581b8c6f4a84071
     }
 });
 
@@ -205,25 +225,32 @@ routes.get('/resource', function(req, res) {
 routes.post('/resource', function(req, res) {
     var data = req.body;
     var trailId = req.body.trailId;
-    var order; //TODO: GET ORDER
+    var annotations = req.body.annotations;
+
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
         .then(function(resource){
             models.Trail.find(trailId).then(function(trail) {
-                trail.addResource(resource);
-                //TODO: Add order and annotations to step;
-                res.json(resource);
-            })
+                trail.getResources().then(function(resources) {
+                    resource[0].order = resources.length + 1;
+                    resource[0].annotations = annotations;
+                    trail.addResource(resource[0]);
+                    res.json(resource[0]);
+                })
+            });
         }
     );
 });
 
-routes.put('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+routes.put('/step/:trailId([0-9]+)', function(req, res) {
     var trailId = req.params.trailId;
-    var order = req.params.order;
-    //TODO: Need to correctly get step based on trail Id
-    models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
-        step.updateAttributes({annotations: req.body.annotations}).then(function(step) {
-            //TODO: DO SOMETHING HERE
+    var resources = req.body.resources; // array of lists
+
+    for (var i = 0; i < resources.length; i++) {
+        resources[i].order = i;
+    }
+    models.Trail.find(trailId).then(function(trail) {
+        trail.setResources(resources, {order: 0, annotations: ''}).then(function(el) {
+            res.json(trail);
         });
     });
 });
