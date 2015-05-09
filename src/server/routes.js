@@ -10,10 +10,14 @@ routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
 });
 
+//*********************** API CODE DO NOT TOUCH UNLESS YOU ARE JACK OR ALEX *****************************//
+
 // Put api code here:
 routes.post('/api/whatever', (args) => {
     // Logic here.
 });
+
+//*********************** API END ***********************************************************************//
 
 routes.get('*', async (req, res) => {
     const router = Router.create({
