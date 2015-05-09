@@ -18,9 +18,18 @@ export default React.createClass({
         };
     },
 
+    search: function(event){
+        const text = event.target.value;
+        this.flux.getActions('UiActions').search(text);
+    },
+
     render: function(){
+        let className = 'search-box';
+        if (this.props.className){
+            className += ` ${this.props.className}`;
+        }
         return (
-            <input value={this.state.searchValue} className="search-box" placeholder={this.props.placeholder} />
+            <input onChange={this.search} className={className} placeholder={this.props.placeholder} />
         );
     }
 });

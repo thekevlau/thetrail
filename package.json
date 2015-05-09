@@ -18,7 +18,7 @@
     "gulp-sourcemaps": "^1.5.2",
     "gulp-util": "^3.0.4",
     "jsx-loader": "^0.13.2",
-    "webpack": "^1.8.11" 
+    "webpack": "^1.8.11"
   },
   "dependencies": {
     "babel": "^5.2.17",

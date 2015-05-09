@@ -16,19 +16,19 @@ export default class ApiDataStore extends BaseStore {
         return this.state.data;
     }
 
-    getProp(key){
+    getProperty(key){
         return this.state.props[key];
     }
 
-    setProp(key, value){
-        const obj = {};
+    setProperty(key, value){
+        let obj = {};
         obj[key] = value;
         this.setState({props: Object.assign(obj, this.state.props)});
     }
 
     registerAsyncAction(action, success=function(){}){
         this.registerAsync(action, this.handleBegin,
-            this.handleSuccess.bind(this, success), this.handleError);
+            this.handleSuccess.bind(this, success.bind(this)), this.handleError);
     }
 
     handleBegin(){
@@ -37,12 +37,14 @@ export default class ApiDataStore extends BaseStore {
 
     handleError(error){
         this.setState({fetching: false, error: error});
-
+        console.log(error);
     }
 
     handleSuccess(success, data){
-        const newData = Object.assign({}, this.state.data, data);
-        this.setState({fetching: false, error: error, data: newData});
-        success(data);
+        const newData = Object.assign({}, this.getData(), data);
+        this.setState({fetching: false, error: null, data: newData});
+        if (typeof success === 'function'){
+            success(data);
+        }
     }
 }

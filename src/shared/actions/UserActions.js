@@ -2,17 +2,21 @@ import { Actions } from 'flummox';
 import fetch from 'isomorphic-fetch';
 
 export default class UserActions extends Actions {
-    async fetch(userId){
+    async fetchUser(userId){
         return {
-            name: 'Shahmeer Navid',
-            id: '0'
+            '0': {
+                name: 'Alexander Fung',
+                id: '0'
+            }
         };
     }
 
     async fetchCurrentUser(){
         return {
-            name: 'Alexander Fung',
-            id: '0'
+            '0': {
+                name: 'Alexander Fung',
+                id: '0'
+            }
         };
     }
 }

@@ -20,4 +20,4 @@ RouteUtils.run(router).then(async ({Handler, state}) => {
     React.withContext({flux}, () => {
         React.render(<Handler {...state} />, document.getElementById('app'));
     });
-});
+}).catch(err => console.error(err));

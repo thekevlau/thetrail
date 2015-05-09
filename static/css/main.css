@@ -1,5 +1,248 @@
+*, *:before, *:after { box-sizing: border-box!important; font-family: Source Sans Pro!important; }
+
+a, a:visited {
+    color: rgba(0, 0, 0, 0.7);
+    -webkit-transition: 0.1s color linear;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+@-webkit-keyframes wiggle
+{
+    0% {
+        -webkit-transform: rotateZ( -1deg );
+    }
+    50% {
+        -webkit-transform: rotateZ( 2deg );
+    }
+    100% {
+        -webkit-transform: rotateZ( -1deg );
+    }
+}
+
+
+@-webkit-keyframes slideIn
+{
+    0% {
+        height: 0%;
+    }
+    100% {
+        height: 100%;
+    }
+}
+
+.content {
+    max-width:1080px;
+    min-width:800px;
+    margin:0 auto;
+}
+
+.overlay {
+    background:rgba(0, 0, 0, 0.1);
+    width:100%;
+    height:100%;
+    position:fixed;
+    top:75px;
+}
+
 .header {
     width: 100%;
-    height: 40px;
-    background:red;
+    height: 75px;
+    background:-webkit-linear-gradient(135deg, #3ab257 0%, #6fb235 50%, #2ba982 100%);
+}
+
+.header__logo {
+    background:url("/images/logo.png") center no-repeat;
+    background-size:contain;
+    width: 100px;
+    height:50px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.header__content {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.header__search {
+    width:50%;
+}
+
+.header__add {
+    background:url("/images/add.svg") 0px 4px no-repeat;
+    background-size:contain;
+    height:40px;
+    width:40px;
+}
+
+.header__left {
+    display: inline-block;
+    vertical-align: middle;
+    float: right;
+    cursor:pointer;
+}
+
+.search-box {
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    background-color: #fff;
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+.home__trail-collection {
+    display: inline-block;
+    vertical-align: top;
+    margin-right:20px;
+    margin-left:20px;
+}
+
+.trail-collection {
+    margin-top:20px;
+}
+
+.trail-collection__box {
+    min-height: 100px;
+    padding: 25px 10px;
+    border-top:3px solid;
+    -webkit-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.25);
+    margin-top: 10px;
+}
+
+.trail-collection__title {
+    font-family: Source Sans Pro;
+    font-size:20px;
+    font-weight:400;
+}
+
+.trail-collection__card {
+    display:inline-block;
+    margin-right: 10px;
+    margin-left:10px;
+    -webkit-transition:box-shadow 0.1s linear;
+    padding:10px;
+    cursor:pointer;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.trail-collection__card:hover {
+    -webkit-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.25);
+    -webkit-animation: wiggle .3s 1;
+    animation: wiggle .3s 1;
+}
+
+.trail-collection__card__hexagon {
+    margin:0 auto;
+}
+
+.trail-card__title {
+    font-family: Source Sans Pro;
+}
+
+.trail__body {
+    min-height: 100px;
+    padding: 25px 30px;
+    -webkit-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.25);
+}
+
+.trail__info {
+    border-bottom:1px dashed rgba(0, 0, 0, 0.2);
+    padding-bottom:20px;
+    margin-bottom:10px;
+}
+
+.trail__info__title {
+    font-size:20px;
+    font-weight:400;
+    margin-bottom:10px;
+}
+
+.trail__info__author {
+    font-size:15px;
+    font-weight:300;
+    font-style:italic;
+}
+
+.trail__steps {
+    position:relative;
+}
+
+.trail-step {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    -webkit-transition:all 0.1s linear;
+    padding-left:20px;
+}
+
+.trail-step:hover {
+    -webkit-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.25);
+    background-color:#fff;
+
+}
+
+.trail-step__emblem {
+    width: 60px;
+    height: 80px;
+    background-image: url('/images/link.svg');
+    background-color: #007db6;
+    background-size: 90%;
+    background-position: 6px 14px;
+    background-repeat: no-repeat;
+    margin-right: 20px;
+    display:inline-block;
+    vertical-align: middle;
+}
+
+.trail-step__step-info {
+    max-width:500px;
+    display: inline-block;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding:10px 0;
+}
+
+.trail-step__step-info__title {
+    font-size:20px;
+    font-weight:400;
+    margin-bottom:5px;
+}
+
+.trail-step__step-info__link{
+    font-size:15px;
+    font-weight:300;
+    margin-bottom:5px;
+    font-style:italic;
+}
+
+.trail__steps__path {
+    width:4px;
+    position:absolute;
+    left:48px;
+    height:100%;
+    background: #f9ad18;
+    border-radius: 19px;
+    -webkit-animation: slideIn 3s 1;
+    z-index:-1;
+}
+
+.hexagon {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    color: #fff;
+    -webkit-mask-image: url('http://i40.tinypic.com/kajqg.jpg');
+    -webkit-mask-position: center center;
+    -webkit-mask-repeat: no-repeat;
+    text-align: center;
+    -webkit-mask-size: 100% 80%;
 }

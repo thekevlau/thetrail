@@ -6,10 +6,10 @@ import TrailCollection from './TrailCollection';
 
 export default React.createClass({
     statics: {
-        init: async function(){
+        init: async function({state, flux}){
             const user = await flux.getActions('UserActions').fetchCurrentUser();
-            const trails = await flux.getActions('TrailActions').fetchTrailsForUser(user.id);
-            return [user, trails];
+            await flux.getActions('TrailActions').fetchTrailsForUser(user.id);
+            return;
         }
     },
 
@@ -25,7 +25,10 @@ export default React.createClass({
         return (
             <div className="home">
                 <Header />
-                <TrailCollection title="My Trails" />
+                <div className="content">
+                    <TrailCollection className="home__trail-collection" title="My Trails" trails={this.state.trails} />
+                    <TrailCollection className="home__trail-collection" color="#f9ad18" width="60%" title="Trails in Progress" trails={this.state.trails} />
+                </div>
             </div>
         );
     }
