@@ -10,12 +10,67 @@ routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
 });
 
+var bodyParser = require('body-parser');
+var url = require('url');
+routes.use(bodyParser.urlencoded({ extended: true }));
+
+routes.use(bodyParser.json()); // for parsing application/json
+
+routes.use(bodyParser.raw());
+
+
 //*********************** API CODE DO NOT TOUCH UNLESS YOU ARE JACK OR ALEX *****************************//
 
 // Put api code here:
+
+
 routes.post('/api/whatever', (args) => {
     // Logic here.
 });
+
+/*routes.get('/trail/:id([0-9]+)', (req, res) =>{  
+    //TODO: sql
+    //var id = req.params[0];
+     res.send('id ' + req.params.id);
+    //res.send("a");
+    //res.json(req.body);
+
+});*/
+
+//trail get
+routes.get('/trail/:id([0-9]+)', function(req, res){
+    var id = req.params.id;
+
+    //TODO: get the trail with the 
+    
+  res.send('user ' + req.params.id);
+
+});
+
+
+//trail post
+routes.post('/trail', (req, res) =>{  
+    //TODO: sql
+
+    var jsonvalue = req.body;
+    res.send(jsonvalue.ID);
+    //todo  var trail = select from where id = 
+    res.send(trail);
+
+});
+
+//user get
+
+//user post
+
+//step get
+
+//step post
+
+
+//routes.post('/trail',())
+
+
 
 //*********************** API END ***********************************************************************//
 
