@@ -1,9 +1,12 @@
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define("User", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     username: {
       type: DataTypes.STRING(30),
-      autoIncrement: true,
-      primaryKey: true
     },
     first_name: DataTypes.STRING,
     last_name: DataTypes.STRING,
@@ -15,13 +18,13 @@ module.exports = function(sequelize, DataTypes) {
     dob: DataTypes.DATE,
     education_level: DataTypes.STRING,
     field: DataTypes.STRING,
-    gender: DataTypes.ENUM('M', 'F')
+    gender: DataTypes.ENUM('M', 'F'),
+    password: DataTypes.STRING
   }, {
     tableName: 'User',
     classMethods: {
       associate: function(models) {
         User.hasMany(models.Trail, {through: 'Own'});
-        User.hasMany(models.Trail, {through: 'Like'});
       }
     }
   });

@@ -1,9 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
   var Trail = sequelize.define('Trail', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
     },
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
@@ -15,7 +15,6 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         Trail.hasMany(models.User, {through: 'Own'});
-        Trail.hasMany(models.User, {through: 'Like'});
         Trail.hasMany(models.Resource, {through: 'Step'});
         Trail.hasMany(models.User, {through: 'TaggedBy'});
       }
