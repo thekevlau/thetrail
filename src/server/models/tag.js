@@ -1,7 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
   var Tag = sequelize.define('Tag', {
 	id: {
-		type: DataTypes.UUID,
+		type: DataTypes.INTEGER,
     autoIncrement: true,
 		primaryKey: true
 	},

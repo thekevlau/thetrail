@@ -14,6 +14,7 @@ const routes = express.Router();
 var bodyParser = require('body-parser');
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
+
 routes.use(bodyParser.json()); 
 routes.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,122 +26,181 @@ routes.get('/monitor/ping', (req, res) => {
 
 //*********************** API CODE DO NOT TOUCH UNLESS YOU ARE JACK OR ALEX *****************************//
 
-// Put api code here:
+// ******************* TRAIL **********************
+routes.get('/trail', (req, res) => {
+    models.Trail.all().then(function(trails) {
+        res.json(trails);
+    })
+});
 
+routes.post('/trail', (req, res) => {  
+    var data = req.body;
+    //TODO: NEED TO SET USER
+    models.Trail.create({name: data.name, 
+        description: data.description, date_created: new Date().format("yyyy/mm/dd"),
+        forked_from: data.forked_from, num_views: data.num_views}).success(function(trail){
+            res.send(trail.id);
+        });
+});
 
-
-//trail get
 routes.get('/trail/:id([0-9]+)', function(req, res){
     var trailId = req.params.id;
-    models.Trail.find(trailId).then(function(trail) {
-        if (trail!=null) {
-
+    models.Trail.find({ where: {id: trailId}, include: [{ all: true }]}).then(function(trail) {
+        if (trail != null) {
             res.json(trail);
-
-        }
-        else {
-            res.json(trail);
+        } else {
             res.status(404).send('Sorry, we cannot find that!');
         }
-
     });
 });
 
-
-//trail post
-routes.post('/trail', (req, res) => {  
-    //TODO: sql
-    //res.json(req.body);
-    var js = req.body;
-    console.log(js);
-
-    //res.send(js.name);
-    models.Trail.create({name: js.name, 
-        description: js.description, date_created: js.date_created,
-        forked_from: js.forked_from, num_views: js.num_views}).then(function(trail){
-            res.send(trail.id);
-        });
-
-    //res.send(jsonvalue.ID);
-    //todo  var trail = select from where id = 
-    //res.json(jsonvalue);
-
-});
-
-//trail put
 routes.put('/trail/:id([0-9]+)', (req, res) =>{  
     var trailId = req.params.id;
-    //TODO: sql
-    //var js = json.parse(req.body);
+    var data = req.body;
 
-    res.send(js.name);
-    models.Trail.upsert({name: js.name, 
-        description: js.description, date_created: js.date_created,
-        forked_from: js.forked_from, num_views: num_views}).then(function(){
-
-        });
-
-    //res.send(jsonvalue.ID);
-    //todo  var trail = select from where id = 
-    //res.json(jsonvalue);
-
+    models.Trail.find(trailId).success(function(trail) {
+        if (trail) {
+            trail.updateAttributes({
+                name: data.name, description: data.description, 
+                    date_created: data.date_created, forked_from: data.forked_from, 
+                    num_views: data.num_views
+                }).success(function() {
+                res.send("Success!")
+            });
+        }
+    });
 });
 
 routes.delete('/trail/:id([0-9]+)', (req, res) => {
     var trailId = req.params.id;
+    //TODO: set ownership as deleted
     models.Trail.find(trailId).on('success', function(trail){
-        models.destroy().on('success', function(a) {
+        trail.destroy().on('success', function(a) {
             if (a && a.deletedAt){
             }
         });
     });
 });
 
+// *********************** USER *******************************
 
+routes.get('/user', function(req, res) {
+    models.User.all().then(function(users) {
+        res.json(users);
+    })
+});
 
-//user get
-
-routes.get('/user/:id([0-9]+)', function(req, res){
+routes.get('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
-    models.User.find({
-        where: {id: userId}
-    }).then(function(user) {
-        if (trail!=null) {
+    models.User.find(userId).then(function(user) {
+        if (trail != null) {
             res.json(user);
-
-        }
-        else {
+        } else {
             res.status(404).send('Sorry, we cannot find that!');
         }
-
     });
 });
 
-//user put
+routes.put('/user/:id([0-9]+)', function(req, res) {
+    var userId = req.params.id;
+    var data = req.body;
 
-//step get
-
-routes.get('/step/:id([0-9]+)', function(req, res){
-    var stepId = req.params.id;
-    models.Step.find({
-        where: {id: stepId}
-    }).then(function(step) {
-        if (trail!=null) {
-            res.json(step);
-
+    models.User.find(userId).success(function(user) {
+        if (user) {
+            user.updateAttributes({
+                name: data.name, first_name: data.first_name, 
+                    last_name: data.last_name, email: data.email, 
+                    url: data.url, description: data.description, dob: data.dob, 
+                    education: data.education, field: data.field, gender: data.gender
+            }).success(function() {
+                res.send("Success!")
+            })
         }
-        else {
-            res.status(404).send('Sorry, we cannot find that!');
-        }
-
     });
 });
 
-//step put
+routes.delete('/user/:id([0-9]+)', function(req, res) {
+    var userId = req.params.id;
+    models.User.find(userId).success(function(user) {
+        //TODO: Delete all trails + steps + unlink resources?
+        user.destroy().success(function(action){
+            //TODO: DO SOMETHING
+        });
+    });
+});
 
-//*********************** API END ***********************************************************************//
+// ************************ Resources & Steps *********************
 
-//** LOGIN *************
+routes.get('/resource', function(req, res) {
+    models.Resource.all().then(function(resources) {
+        res.json(resources);
+    })
+});
+
+routes.post('/resource', function(req, res) {
+    var data = req.body;
+    models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
+        .success(function(resource){
+            models.Step.create({ order: data.order, annotations: data.annotations }).success(function(resource) {
+                //TODO: LINK STEP WITH TRAIL + RESOURCE
+                //TODO: DO SOMETHING HERE
+            });
+        }
+    );
+});
+
+routes.put('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+    var trailId = req.params.trailId;
+    var order = req.params.order;
+    //TODO: Need to correctly get step based on trail Id
+    models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
+        step.updateAttributes({annotations: req.body.annotations}).success(function(step) {
+            //TODO: DO SOMETHING HERE
+        });
+    });
+});
+
+routes.delete('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
+    //TODO: unlink with resource and trail, decrement/increment other steps in that trail, destroy
+});
+
+// *************************** Tags *******************************
+
+routes.post('/tag', (req, res) => {
+    var data = req.body; //should this have an array of tag names where we can then run a for loop?
+    models.Tag.findOrCreate({where: {name: data.name}}).success(function(tag) {
+        //TODO: LINK TAG WITH TRAIL
+    }); 
+});
+
+routes.delete('/tag', (req, res) => {
+    var data = req.body; //should this have an array of tag names as well?
+    //TODO: UNLINK TAG WITH TRAIL
+});
+
+routes.get('/tag', (req, res) => {
+    var name = req.query.name;
+    var arrayOfTags = req.split('+');
+    var arrayOfTrails = [];
+    arrayOfTags.forEach(function(element, index, array) {
+        models.Tag.find({ where: { name: element }, include: [ Trail ], order: [ [ Trail, 'id' ] ] }).then(function(tag) {
+            var listOfTrails = tag.getTrails();
+            var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+            for (let trail in listOfTrails) {
+                if (arrayOfTrailIds.indexOf(trail.id) != -1) {
+                    arrayOfTrails.push(trail);
+                }
+            }
+        });
+    });
+    arrayOfTrails.sort(function(a, b) {
+        a.getLikes().length - b.getLikes().length;
+    });
+    return arrayOfTrails;
+});
+
+// **************************** Login *******************************
+
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
@@ -174,6 +234,13 @@ routes.get('/login', (req, res) => {
 routes.post('/login', 
     passport.authenticate('local'), //returns 401 if fails
     (req, res) => {
+        models.User.find(userId).success(function(user) {
+            if (user) {
+                user.updateAttributes({
+                    last_login: new Date().format("yyyy/mm/dd")
+                })
+            }
+        });
         res.redirect('/user/' + req.user.id);
     }
 );
@@ -200,28 +267,7 @@ routes.post('/signup', (req, res) => {
     });
 });
 
-routes.get('/tag', (req, res) => {
-    var name = req.query.name;
-    var arrayOfTags = req.split('+');
-    var arrayOfTrails = [];
-    arrayOfTags.forEach(function(element, index, array) {
-        models.Tag.find({ where: { name: element }, include: [ Trail ], order: [ [ Trail, 'id' ] ] }).then(function(tag) {
-            var listOfTrails = tag.getTrails();
-            var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
-            for (let trail in listOfTrails) {
-                if (arrayOfTrailIds.indexOf(trail.id) != -1) {
-                    arrayOfTrails.push(trail);
-                }
-            }
-        });
-    });
-    arrayOfTrails.sort(function(a, b) {
-        a.getLikes().length - b.getLikes().length;
-    });
-    return arrayOfTrails;
-});
-
-// *********************
+//*********************** API END ***********************************************************************//
 
 
 routes.get('*', (req, res) => {
