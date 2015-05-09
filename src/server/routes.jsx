@@ -40,11 +40,11 @@ routes.get('/trail', (req, res) => {
 
 routes.post('/trail', (req, res) => {  
     var data = req.body;
-    //TODO: NEED TO SET USER
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
-        forked_from: data.forked_from, num_views: data.num_views}).then(function(trail){
-            res.send(trail.id);
+        forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
+            req.user.addTrail(result);
+            res.json(result);
         });
 });
 
@@ -64,7 +64,7 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
     var trailId = req.params.id;
     var userId = req.query.userId;
 
-    if(action == 'like') {
+    /*if(action == 'like') {
         models.Trail.find(trailId).then(function(trail){
             models.Trail.find(userId).then(function(userId){
                 models.
@@ -72,14 +72,20 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
             if (trail != null){
                 trail.addUser()
             }
-        })
-    } else if (action == 'fork') {
+        })*/
+    if (action == 'fork') {
         models.Trail.find(trailId).then(function(trail){
-            models.Trail.find(userId).then(function(userId){
-                models.
-            })
             if (trail != null){
-                trail.addUser()
+                models.User.find(userId).then(function(userId){
+                    if (user != null) {
+                        
+                        trail.addUser(user);
+                    }
+                    
+
+                })
+            } else {
+                res.status(404).send('Sorry, we cannot find that!');
             }
         })
         
@@ -259,8 +265,8 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  models.User.find(id).then(function (err, user) {
-    done(err, user);
+  models.User.find(id).then(function (user) {
+    done(null, user);
   });
 });
 
@@ -287,20 +293,20 @@ routes.get('/login', (req, res) => {
 routes.post('/login', 
     passport.authenticate('local'), //returns 401 if fails
     (req, res) => {
-        models.User.find(userId).success(function(user) {
+        models.User.find(req.user.id).then(function(user) {
             if (user) {
                 user.updateAttributes({
                     last_login: new Date()
-                })
+                });
+                res.json(req.user);
             }
         });
-        res.redirect('/user/' + req.user.id);
     }
 );
 
 routes.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.status(200).send("Success!");
 });
 
 routes.get('/signup', (req, res) => {
@@ -314,7 +320,7 @@ routes.post('/signup', (req, res) => {
         var userId = result.dataValues.id;
         models.User.find(userId).then(function(user) {
             req.login(user, function() {
-                res.redirect('/user/' + user.id);
+                res.json(req.user);
             })
         })
     });

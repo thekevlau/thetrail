@@ -18,13 +18,13 @@ module.exports = function(sequelize, DataTypes) {
     dob: DataTypes.DATE,
     education_level: DataTypes.STRING,
     field: DataTypes.STRING,
-    gender: DataTypes.ENUM('M', 'F')
+    gender: DataTypes.ENUM('M', 'F'),
+    password: DataTypes.STRING
   }, {
     tableName: 'User',
     classMethods: {
       associate: function(models) {
         User.hasMany(models.Trail, {through: 'Own'});
-        User.hasMany(models.Trail, {through: 'Like'});
       }
     }
   });
