@@ -20,13 +20,17 @@ export default class TrailStore extends ApiDataStore {
 
 	getTrailsForUser(userId){
 		const val = ObjectUtils.values(this.getData())
-			.filter(trail => trail.userId === userId)
+			.filter(trail => {
+				// console.log(trail.Own.UserId, userId, trail.Own.UserId == userId);
+				return trail.userId == userId;
+			})
 			.reduce((map, trail) => {
 				const trailId = trail.id;
 				const obj = Object.assign({}, map);
 				obj[trailId] = trail;
 				return obj;
 			}, {});
+		console.log('RETURNING DATA', val);
 		return val;
 	}
 }

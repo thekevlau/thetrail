@@ -18,7 +18,7 @@ export default React.createClass({
         const trail = this.props.trail;
         let style = {width: '100px', height: '150px'};
         if (trail.image){
-            style.backgroundImage = `url(${trail.image})`;
+            style.backgroundImage = `url(${trail.image || 'https://s3.amazonaws.com/images.dailydabbles.com/artwork/skull-link5243b4c783a87-crop-260x260-medium.png'})`;
         }
         let className = 'trail-card';
         if (this.props.className){

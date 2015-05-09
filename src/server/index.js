@@ -6,7 +6,7 @@ import models from "./models";
 
 const app = express();
 app.use(morgan(config.logging));
-app.use('/api', routes);
+app.use(routes);
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

@@ -86,8 +86,8 @@ const trails = {
 
 export default class TrailActions extends Actions {
     async fetchTrail(trailId){
-        const data = await fetch('http://localhost:8000/api/trail', {query: {trailId}});
-        console.log('THE DATA!!!!');
+        const data = await fetch(`http://localhost:8000/api/trail/${trailId}`);
+        // console.log('THE DATA!!!!', data);
 
         if (trails[trailId]){
             let obj = {};
@@ -100,6 +100,13 @@ export default class TrailActions extends Actions {
     }
 
     async fetchTrailsForUser(userId){
+        // const data = await fetch(`http://localhost:8000/api/user/1/`).then(data => data.json());
+        // let r = data.Trails.reduce((map, trail) => {
+        //     let obj = {};
+        //     obj[trail.id] = trail;
+        //     return Object.assign(obj, map);
+        // }, {});
+        // return r;
         return trails;
     }
 }

@@ -14,7 +14,7 @@ export default class UserActions extends Actions {
     async fetchCurrentUser(){
         return {
             '0': {
-                name: 'Alexander Fung',
+                name: 'Mike Kirkup',
                 id: '0'
             }
         };
