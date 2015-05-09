@@ -12,6 +12,8 @@ import models from "./models";
 const routes = express.Router();
 
 var bodyParser = require('body-parser');
+var passport = require('passport')
+var LocalStrategy = require('passport-local').Strategy;
 routes.use(bodyParser.json()); 
 routes.use(bodyParser.urlencoded({ extended: true }));
 
