@@ -14,11 +14,16 @@ const routes = express.Router();
 var bodyParser = require('body-parser');
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
+var session = require('express-session')
 
 routes.use(bodyParser.json()); 
 routes.use(bodyParser.urlencoded({ extended: true }));
 
 routes.use(express.static('static'));
+
+routes.use(session({ secret: 'superSeCret' }));
+routes.use(passport.initialize());
+routes.use(passport.session());
 
 routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
@@ -37,8 +42,8 @@ routes.post('/trail', (req, res) => {
     var data = req.body;
     //TODO: NEED TO SET USER
     models.Trail.create({name: data.name, 
-        description: data.description, date_created: new Date().format("yyyy/mm/dd"),
-        forked_from: data.forked_from, num_views: data.num_views}).success(function(trail){
+        description: data.description, date_created: new Date(),
+        forked_from: data.forked_from, num_views: data.num_views}).then(function(trail){
             res.send(trail.id);
         });
 });
@@ -54,17 +59,64 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
     });
 });
 
+routes.post('/trail/:id([0-9]+)', function(req, res){
+    var action = req.query.action;
+    var trailId = req.params.id;
+    var userId = req.query.userId;
+
+    if(action == 'like') {
+        models.Trail.find(trailId).then(function(trail){
+            models.Trail.find(userId).then(function(userId){
+                models.
+            })
+            if (trail != null){
+                trail.addUser()
+            }
+        })
+    } else if (action == 'fork') {
+        models.Trail.find(trailId).then(function(trail){
+            models.Trail.find(userId).then(function(userId){
+                models.
+            })
+            if (trail != null){
+                trail.addUser()
+            }
+        })
+        
+    }
+});
+
+    var name = req.query.name;
+    var arrayOfTags = req.split('+');
+    var arrayOfTrails = [];
+    arrayOfTags.forEach(function(element, index, array) {
+        models.Tag.find({ where: { name: element }, include: [ Trail ], order: [ [ Trail, 'id' ] ] }).then(function(tag) {
+            var listOfTrails = tag.getTrails();
+            var arrayOfTrailIds = arrayOfTrails.map(function(trail) { return trail.id });
+            for (let trail in listOfTrails) {
+                if (arrayOfTrailIds.indexOf(trail.id) != -1) {
+                    arrayOfTrails.push(trail);
+                }
+            }
+        });
+    });
+    arrayOfTrails.sort(function(a, b) {
+        a.getLikes().length - b.getLikes().length;
+    });
+    return arrayOfTrails;
+
+
 routes.put('/trail/:id([0-9]+)', (req, res) =>{  
     var trailId = req.params.id;
     var data = req.body;
 
-    models.Trail.find(trailId).success(function(trail) {
+    models.Trail.find(trailId).then(function(trail) {
         if (trail) {
             trail.updateAttributes({
                 name: data.name, description: data.description, 
                     date_created: data.date_created, forked_from: data.forked_from, 
                     num_views: data.num_views
-                }).success(function() {
+                }).then(function() {
                 res.send("Success!")
             });
         }
@@ -105,14 +157,14 @@ routes.put('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
     var data = req.body;
 
-    models.User.find(userId).success(function(user) {
+    models.User.find(userId).then(function(user) {
         if (user) {
             user.updateAttributes({
                 name: data.name, first_name: data.first_name, 
                     last_name: data.last_name, email: data.email, 
                     url: data.url, description: data.description, dob: data.dob, 
                     education: data.education, field: data.field, gender: data.gender
-            }).success(function() {
+            }).then(function() {
                 res.send("Success!")
             })
         }
@@ -121,9 +173,9 @@ routes.put('/user/:id([0-9]+)', function(req, res) {
 
 routes.delete('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
-    models.User.find(userId).success(function(user) {
+    models.User.find(userId).then(function(user) {
         //TODO: Delete all trails + steps + unlink resources?
-        user.destroy().success(function(action){
+        user.destroy().then(function(action){
             //TODO: DO SOMETHING
         });
     });
@@ -139,9 +191,10 @@ routes.get('/resource', function(req, res) {
 
 routes.post('/resource', function(req, res) {
     var data = req.body;
+    var order;
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
-        .success(function(resource){
-            models.Step.create({ order: data.order, annotations: data.annotations }).success(function(resource) {
+        .then(function(resource){
+            models.Step.create({ order: order, annotations: data.annotations }).then(function(resource) {
                 //TODO: LINK STEP WITH TRAIL + RESOURCE
                 //TODO: DO SOMETHING HERE
             });
@@ -154,7 +207,7 @@ routes.put('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
     var order = req.params.order;
     //TODO: Need to correctly get step based on trail Id
     models.Step.find({where: { order: order, trailId: trailId}}).then(function(step) {
-        step.updateAttributes({annotations: req.body.annotations}).success(function(step) {
+        step.updateAttributes({annotations: req.body.annotations}).then(function(step) {
             //TODO: DO SOMETHING HERE
         });
     });
@@ -168,7 +221,7 @@ routes.delete('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
 
 routes.post('/tag', (req, res) => {
     var data = req.body; //should this have an array of tag names where we can then run a for loop?
-    models.Tag.findOrCreate({where: {name: data.name}}).success(function(tag) {
+    models.Tag.findOrCreate({where: {name: data.name}}).then(function(tag) {
         //TODO: LINK TAG WITH TRAIL
     }); 
 });
@@ -206,7 +259,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  User.find(id).then(function (err, user) {
+  models.User.find(id).then(function (err, user) {
     done(err, user);
   });
 });
@@ -216,7 +269,7 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
   },
   function(username, password, done) {
-    User.find({ where: {email: username} }).then(function(user) {
+    models.User.find({ where: {email: username} }).then(function(user) {
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
       }
@@ -237,7 +290,7 @@ routes.post('/login',
         models.User.find(userId).success(function(user) {
             if (user) {
                 user.updateAttributes({
-                    last_login: new Date().format("yyyy/mm/dd")
+                    last_login: new Date()
                 })
             }
         });
@@ -257,13 +310,13 @@ routes.get('/signup', (req, res) => {
 routes.post('/signup', (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
-    models.User.create({email: email, password: password})
-    .error(function(err){
-        res.status(500);
-    })
-    .success(function(result) {
-        passport.authenticate('local'); //sets req.user to user
-        res.redirect('/user/' + req.user.id);
+    models.User.create({email: email, password: password}).then(function(result) {
+        var userId = result.dataValues.id;
+        models.User.find(userId).then(function(user) {
+            req.login(user, function() {
+                res.redirect('/user/' + user.id);
+            })
+        })
     });
 });
 
