@@ -5,6 +5,10 @@ import App from '../shared/App';
 import Flux from '../shared/Flux';
 
 const routes = express.Router();
+        
+var bodyParser = require('body-parser');
+routes.use(bodyParser.json()); 
+routes.use(bodyParser.urlencoded({ extended: true })); 
 
 routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
@@ -17,7 +21,57 @@ routes.post('/api/whatever', (args) => {
     // Logic here.
 });
 
+routes.get('/trail', (req, res) => {
+    //TODO: set trails = SELECT * FROM trail
+    var trails = [1,2,3];
+    res.json({'trail': trails});
+});
+
+routes.post('/trail', (req, res) => {
+    res.json(req.body);
+});
+
 //*********************** API END ***********************************************************************//
+
+//** LOGIN **************
+var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  //TODO: Get User by ID
+
+  //User.findById(id, function (err, user) {
+    //done(err, user);
+  //});
+});
+
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  function(username, password, done) {
+    //TODO: Validate username and password
+
+    /*User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });*/
+  }
+));
+
+
+
+// *********************
+
 
 routes.get('*', async (req, res) => {
     const router = Router.create({
