@@ -43,7 +43,7 @@ routes.post('/trail', (req, res) => {
     var listOfTags = req.body.tags;
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
-        forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
+        forked_from: data.forked_from, num_views: 0}).then(function(result){
             req.user.addTrail(result);
             for(var tagName in listOfTags) {
                 models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
@@ -69,10 +69,21 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
 
 routes.post('/trail/:id([0-9]+)', function(req, res){
     var action = req.query.action;
-    if(action == 'like') {
-
-    } else if (action == 'fork') {
-
+    var trailId = req.params.id;
+    if (action == 'fork') {
+        if(!(req.user)){
+            res.status(401).send('Unauthorized');
+        }
+        models.Trail.find(trailId).then(function(trail) {
+            models.Trail.create({name: trail.name, 
+                description: trail.description, date_created: new Date(),
+                forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
+                    req.user.addTrail(result);
+                    
+                });
+            });
+    } else {
+        res.status(400).send('Sorry, we cannot accept that action');
     }
 });
 
@@ -173,7 +184,7 @@ routes.get('/resource', function(req, res) {
 routes.post('/resource', function(req, res) {
     var data = req.body;
     var trailId = req.body.trailId;
-    var order; //TODO: GET ORDER
+    var order; //TODO: GET order
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
         .then(function(resource){
             models.Trail.find(trailId).then(function(trail) {
