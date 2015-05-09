@@ -8,6 +8,10 @@ import models from "./models";
 const routes = express.Router();
         
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+
 routes.use(bodyParser.json()); 
 routes.use(bodyParser.urlencoded({ extended: true })); 
 
@@ -42,19 +46,15 @@ routes.post('/trail', (req, res) => {
 
 //*********************** API END ***********************************************************************//
 
-//** LOGIN **************
-var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
-
+//** LOGIN *************
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-  //TODO: Get User by ID
-
-  //User.findById(id,    function (err, user) {
-    //done(err, user);
-  //});
+  User.find(id).then(function (err, user) {
+    done(err, user);
+  });
 });
 
 passport.use(new LocalStrategy({
@@ -62,22 +62,51 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
   },
   function(username, password, done) {
-    //TODO: Validate username and password
-
-    /*User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
+    User.find({ where: {email: username} }).then(function(user) {
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
       }
-      if (!user.validPassword(password)) {
+      if (!(user.password == password)) {
         return done(null, false, { message: 'Incorrect password.' });
       }
       return done(null, user);
-    });*/
-  }
-));
+    });
+}));
 
+routes.get('/login', (req, res) => {
+    res.send("Login");
+});
 
+routes.post('/login', 
+    passport.authenticate('local'), //returns 401 if fails
+    (req, res) => {
+        res.redirect('/user/' + req.user.id);
+    }
+);
+
+routes.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/');
+});
+
+routes.get('/signup', (req, res) => {
+    res.send("Sign up!");
+});
+
+routes.post('/signup', (req, res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+    models.User.create({email: email, password: password})
+    .error(function(err){
+        res.status(500);
+    })
+    .success(function(result) {
+        passport.authenticate('local'); //sets req.user to user
+        res.redirect('/user/' + req.user.id);
+    });
+});
+
+routes.
 
 // *********************
 
