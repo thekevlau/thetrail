@@ -42,22 +42,21 @@ routes.get('*', (req, res) => {
     RouteUtils.run(router).then(({Handler, state}) => {
         // Run init method of current route and its parents.
         RouteUtils.init(state.routes, {state, flux}).then(() => {
-            const rendered = React.withContext({flux}, () => {
-                React.renderToString(<Handler {...state} />);
+            React.withContext({flux}, () => {
+                const rendered = React.renderToString(<Handler {...state} />);
+                res.send(`
+                    <html>
+                        <head>
+                        </head>
+                        <body>
+                            <div id="app">
+                                ${rendered}
+                            </div>
+                            <script type='text/javascript' src='/js/bundle.js'></script>
+                        </body>
+                    </html>
+                `);
             });
-
-            res.send(`
-                <html>
-                    <head>
-                    </head>
-                    <body>
-                        <div id="app">
-                            ${rendered}
-                        </div>
-                        <script type='text/javascript' src='/js/bundle.js'></script>
-                    </body>
-                </html>
-            `);
         }).catch(err => { process.stderr.write(err.stack + '\n'); });
     }).catch(err => { process.stderr.write(err.stack + '\n'); });
 });

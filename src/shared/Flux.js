@@ -8,6 +8,6 @@ export default class Flux extends Flummox {
         super();
 
         this.createActions('UiActions', UiActions);
-        this.createStore('UiStore', UiStore);
+        this.createStore('UiStore', UiStore, this);
     }
 };
