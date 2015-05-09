@@ -40,10 +40,18 @@ routes.get('/trail', (req, res) => {
 
 routes.post('/trail', (req, res) => {  
     var data = req.body;
+    var listOfTags = req.body.tags;
     models.Trail.create({name: data.name, 
         description: data.description, date_created: new Date(),
         forked_from: data.forked_from, num_views: data.num_views}).then(function(result){
             req.user.addTrail(result);
+            for(var tagName in listOfTags) {
+                models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
+                    models.Trail.find(result.id).then(function(trail){
+                        trail.addTag(tag);
+                    })
+                }); 
+            }
             res.json(result);
         });
 });
@@ -71,7 +79,8 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
 routes.put('/trail/:id([0-9]+)', (req, res) =>{  
     var trailId = req.params.id;
     var data = req.body;
-
+    var newListOfTags = req.body.newTags;
+    var listOfDeletedTags = req.body.deletedTags;
     models.Trail.find(trailId).then(function(trail) {
         if (trail) {
             trail.updateAttributes({
@@ -79,7 +88,17 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
                     date_created: data.date_created, forked_from: data.forked_from, 
                     num_views: data.num_views
                 }).then(function() {
-                res.send("Success!")
+                    for(var tagName in newListOfTags) {
+                        models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
+                            trail.addTag(tag);
+                        }); 
+                    }
+                    for(var tagName in listOfDeletedTags) {
+                        models.Tag.findOrCreate({where: {name: tagName}}).then(function(tag) {
+                            trail.removeTag(tag);
+                        }); 
+                    }
+                res.send("Success!");
             });
         }
     });
@@ -87,10 +106,10 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
 
 routes.delete('/trail/:id([0-9]+)', (req, res) => {
     var trailId = req.params.id;
-    //TODO: set ownership as deleted
     models.Trail.find(trailId).on('success', function(trail){
         trail.destroy().on('success', function(a) {
             if (a && a.deletedAt){
+                res.send("SUCCESS!");
             }
         });
     });
@@ -153,13 +172,15 @@ routes.get('/resource', function(req, res) {
 
 routes.post('/resource', function(req, res) {
     var data = req.body;
-    var order;
+    var trailId = req.body.trailId;
+    var order; //TODO: GET ORDER
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
         .then(function(resource){
-            models.Step.create({ order: order, annotations: data.annotations }).then(function(resource) {
-                //TODO: LINK STEP WITH TRAIL + RESOURCE
-                //TODO: DO SOMETHING HERE
-            });
+            models.Trail.find(trailId).then(function(trail) {
+                trail.addResource(resource);
+                //TODO: Add order and annotations to step;
+                res.json(resource);
+            })
         }
     );
 });
@@ -180,18 +201,6 @@ routes.delete('/step/:trailId([0-9]+)/:order([0-9]+)', function(req, res) {
 });
 
 // *************************** Tags *******************************
-
-routes.post('/tag', (req, res) => {
-    var data = req.body; //should this have an array of tag names where we can then run a for loop?
-    models.Tag.findOrCreate({where: {name: data.name}}).then(function(tag) {
-        //TODO: LINK TAG WITH TRAIL
-    }); 
-});
-
-routes.delete('/tag', (req, res) => {
-    var data = req.body; //should this have an array of tag names as well?
-    //TODO: UNLINK TAG WITH TRAIL
-});
 
 routes.get('/tag', (req, res) => {
     var name = req.query.name;
