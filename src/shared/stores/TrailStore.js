@@ -27,7 +27,7 @@ export default class TrailStore extends ApiDataStore {
 	}
 
 	//checks to see if two arrays have a common element
-	private function hasSameTag(array1, array2){
+	hasSameTag(array1, array2){
 		var map = {};
 		array1.forEach(function(elem){
 			map[elem] = true;
