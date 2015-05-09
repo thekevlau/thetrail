@@ -79,10 +79,12 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
                 description: trail.description, date_created: new Date(),
                 forked_from: trail.getUsers()[0], num_views: 0}).then(function(result) {
                     req.user.addTrail(result);
-                    for (var resource in trail.getResources()) {
-                        result.addResource(resource, {order: resource.order, annotations: resource.annotations});
-                    }
-                    res.json(result);
+                    trail.getResources().then(function(resources) {
+                        for (var resource in resources) {
+                            result.addResource(resource, {order: resource.order, annotations: resource.annotations});
+                        }
+                        res.json(result);
+                    });
                 });
             });
     } else {
@@ -95,7 +97,7 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
     var data = req.body;
     var newListOfTags = req.body.newTags;
     var listOfDeletedTags = req.body.deletedTags;
-    models.Trail.find(trailId).then(function(trail) {
+    models.Trail.find(trailId).then(function(trail) {s
         if (trail) {
             trail.updateAttributes({
                 name: data.name, description: data.description, 
