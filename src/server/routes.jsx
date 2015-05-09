@@ -97,6 +97,10 @@ routes.post('/trail/:id([0-9]+)', function(req, res){
 });
 
 routes.put('/trail/:id([0-9]+)', (req, res) =>{  
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
+
     var trailId = req.params.id;
     var data = req.body;
     var newListOfTags = req.body.newTags;
@@ -125,6 +129,10 @@ routes.put('/trail/:id([0-9]+)', (req, res) =>{
 });
 
 routes.delete('/trail/:id([0-9]+)', (req, res) => {
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
+
     var trailId = req.params.id;
     models.Trail.find(trailId).on('success', function(trail){
         trail.removeResource();
@@ -146,8 +154,8 @@ routes.get('/user', function(req, res) {
 
 routes.get('/user/:id([0-9]+)', function(req, res) {
     var userId = req.params.id;
-    models.User.find(userId).then(function(user) {
-        if (trail != null) {
+    models.User.find({ where: {id: userId}, include: [{ all: true }]}).then(function(user) {
+        if (user != null) {
             res.json(user);
         } else {
             res.status(404).send('Sorry, we cannot find that!');
@@ -156,6 +164,10 @@ routes.get('/user/:id([0-9]+)', function(req, res) {
 });
 
 routes.put('/user/:id([0-9]+)', function(req, res) {
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
+
     var userId = req.params.id;
     var data = req.body;
 
@@ -174,6 +186,10 @@ routes.put('/user/:id([0-9]+)', function(req, res) {
 });
 
 routes.delete('/user/:id([0-9]+)', function(req, res) {
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
+
     var userId = req.params.id;
     res.send(userId);
     models.User.find(userId).then(function(user) {
@@ -202,6 +218,9 @@ routes.post('/resource', function(req, res) {
     var data = req.body;
     var trailId = req.body.trailId;
     var annotations = req.body.annotations;
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
 
     models.Resource.findOrCreate({ where: { data: data.data, type: data.type } })
         .then(function(resource){
@@ -220,6 +239,9 @@ routes.post('/resource', function(req, res) {
 routes.put('/step/:trailId([0-9]+)', function(req, res) {
     var trailId = req.params.trailId;
     var resources = req.body.resources; // array of lists
+    if(!(req.user)){
+        res.status(401).send('Unauthorized');
+    }
 
     for (var i = 0; i < resources.length; i++) {
         resources[i].order = i;
