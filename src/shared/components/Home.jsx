@@ -1,13 +1,12 @@
 import React from 'react';
-import { RouteHandler } from 'react-router';
+import Header from './Header';
 
 export default React.createClass({
     render: function(){
         return (
-            <div>
-                <RouteHandler />
+            <div className="home">
+                <Header />
             </div>
         );
     }
 });
-

@@ -9,5 +9,9 @@ module.exports = {
 
     restart: function(){
         server.restart.apply(this.caller, arguments);
+    },
+
+    isStarted: function(){
+        return started;
     }
 };
