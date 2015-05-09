@@ -5,7 +5,7 @@ import routes from './routes';
 import models from "./models";
 
 const app = express();
-app.use(morgan('combined'));
+app.use(morgan(config.logging));
 
 app.use(routes);
 

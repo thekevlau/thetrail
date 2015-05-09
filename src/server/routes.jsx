@@ -1,26 +1,19 @@
 import express from 'express';
+import FluxComponent from 'flummox/component';
 import React from 'react';
+import Router from 'react-router';
+import RouteUtils from '../shared/utils/RouteUtils';
 
 import App from '../shared/App';
 import Flux from '../shared/Flux';
-import models from "./models";
+import AppRoutes from '../shared/routes.js';
 
 const routes = express.Router();
 
+routes.use(express.static('static'));
+
 routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
-});
-
-var bodyParser = require('body-parser');
-routes.use(bodyParser.urlencoded({ extended: true }));
-routes.use(bodyParser.json()); // for parsing application/json
-
-routes.get('/dbtest', (req, res) => {
-  models.User.findOrCreate({
-    where: {username: 'timtimpei'}
-  }).then(function(user) {
-    res.send(user);
-  });
 });
 
 //*********************** API CODE DO NOT TOUCH UNLESS YOU ARE JACK OR ALEX *****************************//
@@ -109,9 +102,10 @@ routes.get('/trail/:id([0-9]+)', function(req, res){
 
 //*********************** API END ***********************************************************************//
 
-routes.get('*', async (req, res) => {
+
+routes.get('*', (req, res) => {
     const router = Router.create({
-        routes: routes,
+        routes: AppRoutes,
         location: req.url,
         onError: error => {
             throw error;
@@ -122,21 +116,26 @@ routes.get('*', async (req, res) => {
     // Process current route.
     // state.routes contains the current route and its parent.
     // Handler is the React component that handlers the current route.
-    const {Handler, state} = await RouteUtils.run(router);
-    // Run init method of current route and its parents.
-    await RouteUtils.init(state.routes, {state, flux});
-
-    const rendered = React.renderToString(Handler);
-    res.send(`
-        <html>
-            <head>
-            </head>
-            <body>
-                ${rendered}
-                <script type='text/javascript' src='./bundle.js'></script>
-            </body>
-        </html>
-    `);
+    RouteUtils.run(router).then(({Handler, state}) => {
+        // Run init method of current route and its parents.
+        RouteUtils.init(state.routes, {state, flux}).then(() => {
+            React.withContext({flux}, () => {
+                const rendered = React.renderToString(<Handler {...state} />);
+                res.send(`
+                    <html>
+                        <head>
+                        </head>
+                        <body>
+                            <div id="app">
+                                ${rendered}
+                            </div>
+                            <script type='text/javascript' src='/js/bundle.js'></script>
+                        </body>
+                    </html>
+                `);
+            });
+        }).catch(err => { process.stderr.write(err.stack + '\n'); });
+    }).catch(err => { process.stderr.write(err.stack + '\n'); });
 });
 
 export default routes;
