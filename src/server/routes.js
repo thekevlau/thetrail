@@ -32,47 +32,78 @@ routes.post('/api/whatever', (args) => {
     // Logic here.
 });
 
-/*routes.get('/trail/:id([0-9]+)', (req, res) =>{  
-    //TODO: sql
-    //var id = req.params[0];
-     res.send('id ' + req.params.id);
-    //res.send("a");
-    //res.json(req.body);
 
-});*/
 
 //trail get
 routes.get('/trail/:id([0-9]+)', function(req, res){
-    var id = req.params.id;
+    var trailId = req.params.id;
+    models.Trail.find({
+        where: {id: trailId}
+    }).then(function(trail) {
+        if (trail!=null) {
+            res.json(trail);
 
-    //TODO: get the trail with the 
-    
-  res.send('user ' + req.params.id);
+        }
+        else {
+            res.status(404).send('Sorry, we cannot find that!');
+        }
 
+    });
 });
 
 
 //trail post
-routes.post('/trail', (req, res) =>{  
+routes.put('/trail', (req, res) =>{  
     //TODO: sql
-
     var jsonvalue = req.body;
-    res.send(jsonvalue.ID);
+
+    models.Trail.upsert(req.body, [])
+    //res.send(jsonvalue.ID);
     //todo  var trail = select from where id = 
-    res.send(trail);
+    res.json(jsonvalue);
 
 });
 
 //user get
 
-//user post
+routes.get('user//:id([0-9]+)', function(req, res){
+    var userId = req.params.id;
+    models.User.find({
+        where: {id: userId}
+    }).then(function(user) {
+        if (trail!=null) {
+            res.json(user);
+
+        }
+        else {
+            res.status(404).send('Sorry, we cannot find that!');
+        }
+
+    });
+});
+
+//user put
 
 //step get
 
-//step post
+routes.get('/trail/:id([0-9]+)', function(req, res){
+    var trailId = req.params.id;
+    models.Trail.find({
+        where: {id: trailId}
+    }).then(function(trail) {
+        if (trail!=null) {
+            res.json(trail);
 
+        }
+        else {
+            res.status(404).send('Sorry, we cannot find that!');
+        }
 
-//routes.post('/trail',())
+    });
+});
+
+//step put
+
 
 
 
