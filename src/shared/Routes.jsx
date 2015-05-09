@@ -1,6 +1,10 @@
+import React from 'react';
 import { Route } from 'react-router';
 
+import App from './App';
+import Home from './components/Home';
+
 export default (
-    <Route handler={App}>
+    <Route handler={Home}>
     </Route>
 );

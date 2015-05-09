@@ -16,6 +16,7 @@ var handleWebpackErrors = function(errors){
 
 gulp.task('compile:shared', function(){
     return gulp.src('./src/shared/**/*')
+        .pipe(insert.prepend('require(\'source-map-support\').install();\n'))
         .pipe(insert.prepend('require(\'babel/polyfill\');\n'))
         .pipe(insert.prepend('require(\'node-jsx\').install();\n'))
         .pipe(babel({
@@ -28,6 +29,7 @@ gulp.task('compile:shared', function(){
 
 gulp.task('compile:server', function(){
     return gulp.src('./src/server/**/*')
+        .pipe(insert.prepend('require(\'source-map-support\').install();\n'))
         .pipe(insert.prepend('require(\'babel/polyfill\');\n'))
         .pipe(insert.prepend('require(\'node-jsx\').install();\n'))
         .pipe(babel({
@@ -38,8 +40,8 @@ gulp.task('compile:server', function(){
         .pipe(gulp.dest('./dist/server/'));
 });
 
-gulp.task('restart:server', ['compile:server'], function(done){
-    if (server.started){
+gulp.task('restart', ['compile:server', 'compile:shared'], function(done){
+    if (server.isStarted()){
         server.restart(done);
     }
     else {
@@ -47,8 +49,14 @@ gulp.task('restart:server', ['compile:server'], function(done){
     }
 });
 
-gulp.task('watch:server', ['compile:server', 'compile:shared'], function(){
-    gulp.watch('./src/server/**/*.js', ['restart:server']);
+gulp.task('watch:server', ['compile:server'], function(){
+    gulp.watch('./src/server/**/*.jsx', ['restart']);
+    gulp.watch('./src/server/**/*.js', ['restart']);
+});
+
+gulp.task('watch:shared', ['compile:shared'], function(){
+    gulp.watch('./src/shared/**/*.jsx', ['restart']);
+    gulp.watch('./src/shared/**/*.js', ['restart']);
 });
 
 gulp.task('watch:client', function(){
@@ -56,7 +64,7 @@ gulp.task('watch:client', function(){
         context: __dirname,
         entry: './src/client/init.jsx',
         output: {
-            path: __dirname + '/dist/client/',
+            path: __dirname + '/static/js/',
             filename: 'bundle.js'
         },
         module: {
@@ -89,13 +97,13 @@ gulp.task('watch:client', function(){
             return;
         }
 
-        if (server.started){
+        if (server.isStarted()){
             server.restart();
         }
     });
 });
 
-gulp.task('run', ['watch:server', 'watch:client'], function(done){
+gulp.task('run', ['watch:server', 'watch:shared', 'watch:client'], function(done){
     server.listen({
         path: './dist/server/index.js',
         env: {ENVIRONMENT: 'testing'}
