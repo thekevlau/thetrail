@@ -73,7 +73,7 @@ gulp.task('watch:client', function(){
         },
         devtool: 'inline-source-map'
     }).watch(1000, function(err, stats) {
-        gutil.log('Finished Compiling.');
+        gutil.log('Finished Compiling Client.');
 
         if (err){
             process.stderr.write(err + '\n');
@@ -95,11 +95,10 @@ gulp.task('watch:client', function(){
     });
 });
 
-gulp.task('run:server', ['watch:server'], function(done){
+gulp.task('run', ['watch:server', 'watch:client'], function(done){
     server.listen({
         path: './dist/server/index.js',
         env: {ENVIRONMENT: 'testing'}
     }, done);
 });
 
-gulp.task('run', ['run:server', 'watch:client']);
