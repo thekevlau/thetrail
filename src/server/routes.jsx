@@ -136,10 +136,71 @@ routes.get('/step/:id([0-9]+)', function(req, res){
 
 //step put
 
-
-
-
 //*********************** API END ***********************************************************************//
+
+//** LOGIN *************
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.find(id).then(function (err, user) {
+    done(err, user);
+  });
+});
+
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  function(username, password, done) {
+    User.find({ where: {email: username} }).then(function(user) {
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!(user.password == password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+}));
+
+routes.get('/login', (req, res) => {
+    res.send("Login");
+});
+
+routes.post('/login', 
+    passport.authenticate('local'), //returns 401 if fails
+    (req, res) => {
+        res.redirect('/user/' + req.user.id);
+    }
+);
+
+routes.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/');
+});
+
+routes.get('/signup', (req, res) => {
+    res.send("Sign up!");
+});
+
+routes.post('/signup', (req, res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+    models.User.create({email: email, password: password})
+    .error(function(err){
+        res.status(500);
+    })
+    .success(function(result) {
+        passport.authenticate('local'); //sets req.user to user
+        res.redirect('/user/' + req.user.id);
+    });
+});
+
+routes.
+
+// *********************
 
 
 routes.get('*', (req, res) => {
