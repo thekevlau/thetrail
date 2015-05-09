@@ -27,19 +27,21 @@ routes.get('/monitor/ping', (req, res) => {
 
 // Put api code here:
 
+routes.get('/trail', (req, res) => {
+    models.Trail.all().then(function(trails) {
+        res.json(trails);
+    })
+});
 
 
 //trail get
 routes.get('/trail/:id([0-9]+)', function(req, res){
     var trailId = req.params.id;
     models.Trail.find(trailId).then(function(trail) {
-        if (trail!=null) {
-
+        if (trail != null) {
             res.json(trail);
-
         }
         else {
-            res.json(trail);
             res.status(404).send('Sorry, we cannot find that!');
         }
 
@@ -52,12 +54,11 @@ routes.post('/trail', (req, res) => {
     //TODO: sql
     //res.json(req.body);
     var js = req.body;
-    console.log(js);
 
     //res.send(js.name);
     models.Trail.create({name: js.name, 
         description: js.description, date_created: js.date_created,
-        forked_from: js.forked_from, num_views: js.num_views}).then(function(trail){
+        forked_from: js.forked_from, num_views: js.num_views}).success(function(trail){
             res.send(trail.id);
         });
 
