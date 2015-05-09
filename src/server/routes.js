@@ -3,7 +3,7 @@ import React from 'react';
 
 import App from '../shared/App';
 import Flux from '../shared/Flux';
-import models from "../../models";
+import models from "./models";
 
 const routes = express.Router();
         
