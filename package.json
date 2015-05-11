@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "./node_modules/gulp/bin/gulp.js run"
+    "start": "./node_modules/gulp/bin/gulp.js start"
   },
   "author": "Shahmeer Navid <shahmeernavid@gmail.com> (http://shahmeer.co/)",
   "license": "ISC",
