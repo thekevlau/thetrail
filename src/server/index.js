@@ -1,3 +1,7 @@
+require('source-map-support').install();
+require('node-jsx').install();
+require('babel/polyfill');
+
 import config from './appconfig';
 import express from 'express';
 import morgan from 'morgan';
@@ -5,7 +9,7 @@ import routes from './routes';
 import models from "./models";
 
 const app = express();
-app.use(morgan(config.logging));
+app.use(morgan('dev'));
 app.use(routes);
 
 app.use(function(req, res, next) {
@@ -14,7 +18,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-
 models.sequelize.sync().then(function () {
 	app.listen(config.port);
+    console.log(`Listening on port ${config.port}`);
 });
