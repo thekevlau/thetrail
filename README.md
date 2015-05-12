@@ -9,4 +9,4 @@ Revolutionizing the way people learn, one trail at a time.
  - Make sure the nvm is sourced properly in your shell config file. If `nvm` runs properly, everything is set up properly.
  - Run `nvm install iojs`.
 2. Clone the repo to your machine. Run `npm install` from within the repo.
-3. Run `npm run start`.
+3. Run `npm start`.

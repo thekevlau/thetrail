@@ -12,7 +12,7 @@ gulp.task('move:static_assets', function(){
         .pipe(gulp.dest('./dist/client/'));
 });
 
-gulp.task('start', ['', 'watch:server', 'watch:shared', 'watch:client', 'move:static_assets'],
+gulp.task('start', ['watch:server', 'watch:shared', 'watch:client', 'move:static_assets'],
         function(){
     nodemon({
         execMap: { js: 'node' },
