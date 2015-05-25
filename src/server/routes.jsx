@@ -9,11 +9,11 @@ import RouteUtils from '../shared/utils/RouteUtils';
 import App from '../shared/App';
 import Flux from '../shared/Flux';
 import AppRoutes from '../shared/routes.js';
-import ApiRoutes from './routes/api';
-
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var session = require('express-session');
+import TrailRoutes from './routes/trail-routes';
+import TagRoutes from './routes/tag-routes';
+import AuthRoutes from './routes/auth-routes';
+import UserRoutes from './routes/user-routes';
+import ResourceRoutes from './routes/resource-routes';
 
 const routes = express.Router();
 
@@ -22,15 +22,15 @@ routes.use(bodyParser.urlencoded({ extended: true }));
 
 routes.use(express.static(config.static));
 
-routes.use(session({ secret: 'superSeCret' }));
-routes.use(passport.initialize());
-routes.use(passport.session());
-
 routes.get('/monitor/ping', (req, res) => {
     res.send(`I'm working!`);
 });
 
-routes.use('/api', ApiRoutes);
+routes.use('/api', TrailRoutes);
+routes.use('/api', TagRoutes);
+routes.use('/api', AuthRoutes);
+routes.use('/api', UserRoutes);
+routes.use('/api', ResourceRoutes);
 
 routes.get('*', (req, res) => {
     const router = Router.create({
