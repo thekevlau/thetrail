@@ -1,7 +1,6 @@
 var babel = require('gulp-babel');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var insert = require('gulp-insert');
 var sourcemaps = require('gulp-sourcemaps');
 
 var compile = function(){
