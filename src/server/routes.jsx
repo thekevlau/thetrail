@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import config from './appconfig';
 import express from 'express';
 import FluxComponent from 'flummox/component';
 import React from 'react';
@@ -19,7 +20,7 @@ const routes = express.Router();
 routes.use(bodyParser.json());
 routes.use(bodyParser.urlencoded({ extended: true }));
 
-routes.use(express.static('static'));
+routes.use(express.static(config.static));
 
 routes.use(session({ secret: 'superSeCret' }));
 routes.use(passport.initialize());
@@ -52,7 +53,6 @@ routes.get('*', (req, res) => {
                 res.send(`
                     <html>
                         <head>
-                            <link rel="stylesheet" type="text/css" href="/css/reset.css" />
                             <link rel="stylesheet" type="text/css" href="/css/main.css" />
                         </head>
                         <body>
