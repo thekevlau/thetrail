@@ -1,6 +1,5 @@
 var assign = require('object-assign');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var path = require('path');
 var webpack = require('../tools/gulp-webpack.js');
 
