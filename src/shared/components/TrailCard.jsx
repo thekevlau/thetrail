@@ -11,7 +11,7 @@ export default React.createClass({
     },
 
     clickCard: function(trailId){
-        window.location.replace(`http://localhost:8000/trail/${trailId}`);
+        this.transitionTo('test', {trailId});
     },
 
     render: function(){

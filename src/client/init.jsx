@@ -14,10 +14,13 @@ const router = Router.create({
     location: Router.HistoryLocation
 });
 
-RouteUtils.run(router).then(async ({Handler, state}) => {
-    await RouteUtils.init(state.routes, {state, flux});
-
-    React.withContext({flux}, () => {
-        React.render(<Handler {...state} />, document.getElementById('app'));
+router.run((Handler, state) => {
+    RouteUtils.init(state.routes, {state, flux}).then(() => {
+        const appRoot = (
+            <FluxComponent flux={flux}>
+                <Handler {...state} />
+            </FluxComponent>
+        );
+        React.render(appRoot, document.getElementById('app'));
     });
-}).catch(err => console.error(err));
+});
