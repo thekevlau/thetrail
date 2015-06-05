@@ -36,7 +36,16 @@ routes.get('*', (req, res) => {
     const router = Router.create({
         routes: AppRoutes,
         location: req.url,
-        onError: err => process.stderr.write(err.stack + '\n')
+        onError: err => process.stderr.write(err.stack + '\n'),
+        // Can't use arrow syntax since it autobinds.
+        onAbort: function(reason){
+            if (reason.constructor.name === 'Redirect'){
+                res.redirect(302, this.makePath(reason.to, reason.params, reason.query));
+            }
+            else {
+                console.err('Unhandled abort transition.');
+            }
+        }
     });
     const flux = new Flux();
 
