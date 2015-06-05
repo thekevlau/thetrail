@@ -31,7 +31,7 @@ var webpackConfig = {
 var compile = function(){
     return gulp.src('./src/client/init.jsx')
         .pipe(webpack(webpackConfig))
-        .pipe(gulp.dest(path.resolve(__dirname, '../dist/client/js/')));
+        .pipe(gulp.dest(path.resolve(__dirname, '../dist/client/static/js/')));
 };
 
 var watch = function(done){
@@ -45,7 +45,7 @@ var watch = function(done){
 
     gulp.src('./src/client/init.jsx')
         .pipe(webpack(assign({watch: true, onCompile: onCompile}, webpackConfig)))
-        .pipe(gulp.dest(path.resolve(__dirname, '../dist/client/js/')));
+        .pipe(gulp.dest(path.resolve(__dirname, '../dist/client/static/js/')));
 };
 
 gulp.task('compile:client', compile);
