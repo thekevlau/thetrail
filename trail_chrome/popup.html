@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html ng-app="trail-extension">
+  <head>
+    <title>Getting Started Extension's Popup</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="angular.min.js"></script>
+    <script src="angular-resource.min.js"></script>
+    <script src="main.js"></script>
+    <style>
+      body {
+        background-color:#eee;
+        position:relative;
+        letter-spacing: 1px;
+      }
+      h2 {
+        font-weight:400;
+      }
+    </style>
+  </head>
+
+  <body ng-controller="popupController">
+    <form ng-show="!loggedIn">
+      <div class="logo-header">
+      </div>
+      <h2 style="margin:0px">Login
+      </h2>
+      <div class="input-border">
+      <input class="coolborder" type="text" ng-model="username" name="username" placeholder="Username">
+      </div>
+      <div class="input-border">
+      <input class="coolborder" type="password" ng-model="password" name="password" placeholder="Password">
+      </div>
+      <input type="submit" value="Submit" ng-click="login(username, password)">
+    </form>
+
+    <div ng-show="loggedIn && !end">
+      <div class="auth-header">
+        <h2> ADD THIS PAGE TO A TRAIL </h2>
+      </div>
+      <div class="trail" ng-repeat="trail in trails" ng-click="saveStep(trail.id)">
+        <div class="hexagon"></div> <span class="trail-name">{{trail.name}}</span> <span class="trail-author">{{trail.author}}</span>
+        <!-- this is a cheat, should use glyphicon in future -->
+        <span class="plus-button">+</span>
+      </div>
+    </div>
+
+    <img ng-show="end" src='lastStep.png'>
+
+  </body>
+</html>
+

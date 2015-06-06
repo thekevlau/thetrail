@@ -1,0 +1,130 @@
+<style>
+
+  h2 {
+    font-weight: 400;
+  }
+
+  input:focus {
+    outline: none;
+  }
+  ::-webkit-input-placeholder { /* WebKit browsers */
+      color: #000;
+      font-weight: 500;
+      letter-spacing: 1px;
+  }
+  .hexagon {
+     background-image: url("gradient.png");
+     background-size: 40px 40px;
+     background-repeat: no-repeat;
+     height:30px;
+     width:30px;
+     padding:5px;
+     position: relative;
+     display: inline-block;
+     overflow: hidden;
+     color: #000;
+     -webkit-mask-image: url('http://i40.tinypic.com/kajqg.jpg');
+     -webkit-mask-position: center center;
+     -webkit-mask-repeat: no-repeat;
+     text-align: center;
+     -webkit-mask-size: 100% 80%;
+  }
+
+
+  .auth-header {
+    background-image: url("gradient.png");
+    background-size: 300px 40px;
+    position:relative;
+    height: 40px;
+    width: 300px;
+    color: white;
+    text-align: center;
+  }
+  .auth-header h2{
+    font-weight: 400;
+    position:relative;
+    top:7px;
+  }
+  .trail {
+    padding-left: 5px;
+    padding-right: 5px;
+    height:40px;
+    width:290px;
+    background-color: white;
+    margin: 5px 0;
+    position:relative;
+  }
+  .trail:hover {
+    background-color:#ccc;
+  }
+
+  .trail-name {
+    max-width:100px;
+    overflow:hidden;
+    padding: 5px;
+    font-size:20px;
+    font-weight:400;
+    position:relative;
+    bottom: 15px;
+  }
+
+  .trail-author {
+    max-width: 100px;
+    overflow:hidden;
+    padding:5px;
+    font-size: 18px;
+    font-weight: 300;
+    font-style: italic;
+    position:relative;
+    bottom: 15px;
+  }
+  .input-border {
+    background-image: url("gradient.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    padding:2px;
+    margin:5px 0px;
+    border-radius:10px;
+  }
+  .coolborder {
+    border-radius:10px;
+    border: 2px transparent;
+    background-color:white;
+    height:24px;
+    width: 220px;
+    padding-left:10px;
+  }
+  .plus-button {
+    position:absolute;
+    right:5px;
+    bottom:3px;
+    font-size:35px;
+    font-weight:600;
+  }
+
+  .logo-header {
+    background-image: url("logo-header.png");
+    background-size: 140px 50px;
+    background-position: 30px 15px;
+    background-repeat: no-repeat;
+    width: 200px;
+    padding: 15px;
+    height:40px;
+  }
+
+  #status {
+    /* avoid an excessively wide status text */
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 400px;
+  }
+
+  .ng-hide:not(.ng-hide-animate) {
+    /* this is just another form of hiding an element */
+    display: block!important;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+</style>
