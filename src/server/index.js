@@ -6,10 +6,12 @@ import config from './appconfig';
 import express from 'express';
 import morgan from 'morgan';
 import routes from './routes';
-import models from "./models";
+import models from './models';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(morgan('dev'));
+app.use(cookieParser());
 app.use(routes);
 
 app.use(function(req, res, next) {

@@ -1,78 +1,112 @@
 import express from 'express';
+import models from '../models';
+import crypto from 'crypto';
+import session from 'express-session';
+import jwt from 'jsonwebtoken';
+import config from '../config/testing';
+
 const routes = express.Router();
-
-import models from "../models";
-
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var session = require('express-session');
-
-routes.use(session({ secret: 'superSeCret' }));
-routes.use(passport.initialize());
-routes.use(passport.session());
+const secret = config.secret; //TODO: Store secret elsewhere and change it!!
+const accessToken = config.accessToken;
 
 // **************************** Login *******************************
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
+var login = (user, res) => {
+  var token = jwt.sign(user, secret, {
+    expiresInMinutes: 1440 // expires in 24 hours
+  });
+
+  user.updateAttributes({
+    last_login: new Date()
+  });
+
+  res.cookie(accessToken, token, { maxAge: 86400000, httpOnly: true }); //might need more security to defend against CSRF:
+  //see : https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage/
+
+  return res.json({
+    success: true
+  });
+};
+
+var currentUser = req => {
+  if(!(accessToken in req.cookies)) {
+    return null;
+  }
+
+  var token = req.cookies[accessToken];
+
+  jwt.verify(token, secret, (err, decoded) => {      
+    if (!err) { //if logged in already
+      return decoded;
+    } 
+    return null;
+  });
+};
+
+var isLoggedIn = req => {
+  return (currentUser(req) !== null);
+};
+
+var encrypt = (password, salt) => {
+  var sha512 = crypto.createHash('sha512');
+  sha512.update(password + salt);
+  return sha512.digest('hex');
+};
+
+routes.get('/isLoggedIn', (req, res) => {
+  return res.json({isLoggedIn: isLoggedIn(req)});
 });
 
-passport.deserializeUser(function(id, done) {
-  models.User.find(id).then(function (user) {
-    done(null, user);
+routes.get('/currentUser', (req, res) => { //TODO: Use currentUser function above once able to figure out async
+  if(!(accessToken in req.cookies)) {
+    return res.json(null);
+  }
+
+  var token = req.cookies[accessToken];
+
+  jwt.verify(token, secret, (err, decoded) => {      
+    if (!err) { //if logged in already
+      return res.json(decoded);
+    } 
+    return res.json(null);
   });
 });
 
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  function(username, password, done) {
-    models.User.find({ where: {email: username} }).then(function(user) {
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!(user.password == password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-}));
+routes.post('/login', (req, res) => {
+  var email = req.body.email;
 
-routes.get('/isLoggedIn', (req, res) => {
-    res.json({isLoggedIn: req.user != null});
+  models.User.findOne({where: {email: email}}).then(user => {
+    if(encrypt(req.body.password, user.salt) != user.password) {
+      return res.json({
+        success: false
+      });
+    }
+
+    return login(user, res);
+  });
 });
 
-routes.post('/login',
-    passport.authenticate('local'), //returns 401 if fails
-    (req, res) => {
-        models.User.find(req.user.id).then(function(user) {
-            if (user) {
-                user.updateAttributes({
-                    last_login: new Date()
-                });
-                res.json(req.user);
-            }
-        });
-    }
-);
-
-routes.get('/logout', (req, res) => {
-    req.logout();
-    res.status(200).send("Success!");
+routes.post('/logout', (req, res) => {
+  res.clearCookie(accessToken);
+  req.decoded = null;
+  return res.json({
+    success: true
+  });
 });
 
 routes.post('/signup', (req, res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-    models.User.create({email: email, password: password}).then(function(result) {
-        var userId = result.dataValues.id;
-        models.User.find(userId).then(function(user) {
-            req.login(user, function() {
-                res.json(req.user);
-            })
-        })
-    });
+  if(isLoggedIn(req)) {
+    return res.redirect('/');
+  }
+
+  var email = req.body.email;
+  var password = req.body.password;
+  var salt = crypto.randomBytes(16);
+  var hashedPassword = encrypt(password, salt);
+
+  models.User.create({password: hashedPassword, email: email, salt: salt}).then(user => {
+    return login(user, res);
+  });
 });
 
 export default routes;
