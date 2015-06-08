@@ -49,6 +49,6 @@
     "sequelize": "^3.0.0",
     "sequelize-cli": "^1.7.0",
     "source-map-support": "^0.2.10",
-    "sqlite3": "^3.0.8"
+    "pg-hstore": "^2.3.2"
   }
 }

@@ -2,13 +2,24 @@
 
 var fs        = require('fs');
 var path      = require('path');
+var pg        = require('pg');
 var Sequelize = require('sequelize');
 var basename  = path.basename(module.filename);
-var env       = process.env.NODE_ENV || 'development';
-var sequelize = new Sequelize('trail', null, null, {
-                      "dialect": "sqlite",
-                      "storage": "./db.development.sqlite"
-                    });
+
+var dbName = 'trail'; 
+var conStringPri = 'postgres://localhost:5432/' + dbName;
+
+/*
+var client = new pg.Client(conStringPri);
+client.query('CREATE DATABASE ' + dbName, function(err) { // create user's db
+  if (err) 
+    console.log('ignoring the error'); // ignore if the db is there
+  client.end(); // close the connection
+
+});
+*/
+
+var sequelize = new Sequelize(conStringPri);
 var db        = {};
 
 fs
