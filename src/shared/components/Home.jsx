@@ -1,4 +1,5 @@
 import React from 'react';
+import { RouteHandler } from 'react-router';
 import fluxMixin from 'flummox/mixin';
 
 import Header from './Header';
@@ -28,6 +29,7 @@ export default React.createClass({
                 <div className="content">
                     <TrailCollection className="home__trail-collection" title="My Trails" trails={this.state.trails} />
                     <TrailCollection className="home__trail-collection" color="#f9ad18" width="60%" title="Trails in Progress" trails={this.state.trails} />
+                    <RouteHandler key="subviews" />
                 </div>
             </div>
         );
