@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
     tableName: 'User',
     classMethods: {
       associate: function(models) {
-        User.hasMany(models.Trail, {through: 'Own'});
+        User.hasMany(models.Trail);
       }
     }
   });

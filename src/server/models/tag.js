@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
   	tableName: 'Tag',
     classMethods: {
       associate: function(models) {
-      	Tag.hasMany(models.Trail, {through: 'TaggedBy'});
+      	Tag.belongsToMany(models.Trail, {through: 'TaggedBy'});
       }
     }
   });

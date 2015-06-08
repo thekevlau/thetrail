@@ -14,9 +14,9 @@ module.exports = function(sequelize, DataTypes) {
     tableName: 'Trail',
     classMethods: {
       associate: function(models) {
-        Trail.hasMany(models.User, {through: 'Own'});
-        Trail.hasMany(models.Resource, {through: 'Step'});
-        Trail.hasMany(models.User, {through: 'TaggedBy'});
+        Trail.belongsTo(models.User);
+        Trail.belongsToMany(models.Resource, {through: 'Step'});
+        Trail.belongsToMany(models.User, {through: 'TaggedBy'});
       }
     }
   });

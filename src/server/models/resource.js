@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
   	tableName: 'Resource',
     classMethods: {
       associate: function(models) {
-        Resource.hasMany(models.Trail, {through: 'Step'});
+        Resource.belongsToMany(models.Trail, {through: 'Step'});
       }
     }
   });
