@@ -1,77 +1,81 @@
 import express from 'express';
+import models from '../models';
+import crypto from 'crypto';
+import session from 'express-session';
+import jwt from 'jsonwebtoken';
+import config from '../appconfig';
+
 const routes = express.Router();
-
-import models from "../models";
-
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var session = require('express-session');
-
-routes.use(session({ secret: 'superSeCret' }));
-routes.use(passport.initialize());
-routes.use(passport.session());
+const secret = config.secret;
+const accessToken = config.accessToken;
 
 // **************************** Login *******************************
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  models.User.find(id).then(function (user) {
-    done(null, user);
-  });
-});
-
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  function(username, password, done) {
-    models.User.find({ where: {email: username} }).then(function(user) {
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!(user.password == password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
+const login = (user, res) => {
+    const token = jwt.sign(user, secret, {
+        expiresInMinutes: 1440 // Expires in 24 hours.
     });
-}));
+
+    user.updateAttributes({
+        last_login: new Date()
+    });
+
+    // This might need more security to defend against CSRF.
+    // For more info, see : https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage/
+    res.cookie(accessToken, token, { maxAge: 86400000, httpOnly: true });
+
+    return res.json({
+        success: true
+    });
+};
+
+const encrypt = (password, salt) => {
+    const sha512 = crypto.createHash('sha512');
+    sha512.update(password + salt);
+    return sha512.digest('hex');
+};
 
 routes.get('/isLoggedIn', (req, res) => {
-    res.json({isLoggedIn: req.user != null});
+    return res.json({isLoggedIn: req.user !== null});
 });
 
-routes.post('/login',
-    passport.authenticate('local'), //returns 401 if fails
-    (req, res) => {
-        models.User.find(req.user.id).then(function(user) {
-            if (user) {
-                user.updateAttributes({
-                    last_login: new Date()
-                });
-                res.json(req.user);
-            }
-        });
-    }
-);
+routes.get('/currentUser', (req, res) => {
+    return res.json(req.user);
+});
 
-routes.get('/logout', (req, res) => {
-    req.logout();
-    res.status(200).send("Success!");
+routes.post('/login', (req, res) => {
+    const email = req.body.email;
+
+    models.User.findOne({where: {email: email}}).then(user => {
+        if (encrypt(req.body.password, user.salt) != user.password){
+            return res.json({
+                success: false
+            });
+        }
+
+        return login(user, res);
+    });
+});
+
+routes.post('/logout', (req, res) => {
+    res.clearCookie(accessToken);
+    return res.json({
+        success: true
+    });
 });
 
 routes.post('/signup', (req, res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-    models.User.create({email: email, password: password}).then(function(result) {
-        var userId = result.dataValues.id;
-        models.User.find(userId).then(function(user) {
-            req.login(user, function() {
-                res.json(req.user);
-            })
-        })
+    if (isLoggedIn(req)){
+        return res.redirect('/');
+    }
+
+    const email = req.body.email;
+    const password = req.body.password;
+    const salt = crypto.randomBytes(16);
+    const hashedPassword = encrypt(password, salt);
+
+    models.User.create({password: hashedPassword, email: email, salt: salt}).then(user => {
+        return login(user, res);
     });
 });
 

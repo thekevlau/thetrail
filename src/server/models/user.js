@@ -17,6 +17,7 @@ module.exports = function(sequelize, DataTypes) {
     last_login: DataTypes.DATE,
     dob: DataTypes.DATE,
     education_level: DataTypes.STRING,
+    salt: DataTypes.STRING,
     field: DataTypes.STRING,
     gender: DataTypes.ENUM('M', 'F'),
     password: DataTypes.STRING
