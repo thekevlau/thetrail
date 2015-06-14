@@ -65,7 +65,7 @@ routes.post('/logout', (req, res) => {
 });
 
 routes.post('/signup', (req, res) => {
-    if (isLoggedIn(req)){
+    if (req.user !== null){
         return res.redirect('/');
     }
 
