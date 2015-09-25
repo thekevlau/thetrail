@@ -1,6 +1,6 @@
 # Trail
 
-Revolutionizing the way people learn, one trail at a time.
+Revolutionizing the way people learn, one trail at a time. The purpose of this is to create a customized curriculum for any given user to learn any given subject – enhanced personalized learning.
 
 # Dev Environment Setup
 

@@ -16,7 +16,11 @@ chrome.tabs.getSelected(null, function(tab) {
 function checkAuth() {
   // GET from server; if true: return user id, auth token?
   // if false or reply empty:, call userLogin()
+  var token;
 
+  chrome.cookies.get(access_token, function(Cookie cookie) {
+    token = cookie.value;
+  });
 
 }
 
